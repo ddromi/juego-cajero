@@ -3,16 +3,684 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="theme-color" content="#2a6df4" />
-  <title>🏧 Cajero & Compras — Juego para chicos</title>
-  <link rel="stylesheet" href="styles.css" />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏧</text></svg>" />
+  <meta name="theme-color" content="#7ec8ff" />
+  <title>🏙️ Mi Ciudad — Cajero & Compras</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏙️</text></svg>" />
+  <style>
+  :root{
+    --azul:#2a6df4; --azul-osc:#1b4bb0; --verde:#25b85f; --verde-osc:#1c9149;
+    --rojo:#e8453c; --amarillo:#ffce00; --gris:#eef2f8; --texto:#1f2a44;
+    --radio:18px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{
+    margin:0;padding:0;height:100%;
+    font-family:"Comic Sans MS","Trebuchet MS","Segoe UI",system-ui,sans-serif;
+    color:var(--texto);background:#bfe3ff;overflow:hidden;
+    -webkit-user-select:none;user-select:none;
+  }
+  #app{position:fixed;inset:0;}
+
+  /* ---------- Botones genéricos ---------- */
+  .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
+    border:none;border-radius:var(--radio);padding:16px;font-size:19px;font-weight:800;
+    font-family:inherit;color:#fff;background:var(--azul);box-shadow:0 6px 0 rgba(0,0,0,.18);
+    cursor:pointer;margin:8px 0;transition:transform .05s;}
+  .btn:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.18);}
+  .btn.verde{background:var(--verde);}
+  .btn.rojo{background:var(--rojo);}
+  .btn.amarillo{background:var(--amarillo);color:var(--texto);}
+  .btn.gris{background:#c4cee0;color:var(--texto);}
+  .btn:disabled{filter:grayscale(.6) opacity(.6);}
+  .btn .emoji{font-size:24px;}
+
+  /* ---------- HUD plata ---------- */
+  .hud{position:absolute;top:8px;left:8px;right:8px;display:flex;gap:8px;z-index:30;pointer-events:none;}
+  .hud .chip{flex:1;background:rgba(255,255,255,.92);border-radius:14px;padding:6px 10px;
+    text-align:center;box-shadow:0 3px 0 rgba(0,0,0,.12);}
+  .hud .et{font-size:11px;opacity:.7;}
+  .hud .mo{font-size:18px;font-weight:800;}
+  .hud .banco .mo{color:var(--azul-osc);} .hud .efe .mo{color:var(--verde-osc);}
+  .hud .mon .mo{color:#c98a00;}
+
+  /* botón sonido */
+  .sonido-btn{position:absolute;top:8px;right:8px;border:none;background:rgba(255,255,255,.92);
+    border-radius:50%;width:40px;height:40px;font-size:18px;box-shadow:0 3px 0 rgba(0,0,0,.12);
+    cursor:pointer;z-index:40;}
+
+  /* ---------- Pantalla elegir avatar ---------- */
+  .pick{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;gap:14px;padding:20px;
+    background:linear-gradient(160deg,#aee0ff,#d6f3ff 50%,#fff3c4);}
+  .pick h1{font-size:26px;margin:0;text-align:center;}
+  .pick p{margin:0;opacity:.75;text-align:center;}
+  .chars{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:360px;width:100%;}
+  .char{font-size:40px;background:#fff;border:3px solid transparent;border-radius:16px;
+    padding:8px 0;text-align:center;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.1);}
+  .char.sel{border-color:var(--azul);transform:scale(1.05);}
+  .pick input{font-family:inherit;font-size:18px;padding:12px 14px;border-radius:14px;
+    border:2px solid #cdd8ea;width:100%;max-width:360px;text-align:center;}
+  .pick .btn{max-width:360px;}
+
+  /* ---------- Ciudad ---------- */
+  .ciudad{position:absolute;inset:0;overflow:hidden;
+    background:linear-gradient(#8fd3ff 0%,#bfe6ff 45%,#e9f7ff 60%);}
+  .sol{position:absolute;top:6%;right:12%;font-size:54px;animation:girar 18s linear infinite;}
+  @keyframes girar{to{transform:rotate(360deg);}}
+  .nube{position:absolute;font-size:46px;opacity:.95;animation:nubeAnda linear infinite;}
+  @keyframes nubeAnda{from{transform:translateX(-20vw);}to{transform:translateX(120vw);}}
+
+  /* piso */
+  .vereda{position:absolute;left:0;right:0;bottom:18%;height:14%;background:#cfd6df;
+    border-top:4px solid #b9c1cc;}
+  .vereda::after{content:"";position:absolute;inset:0;
+    background-image:repeating-linear-gradient(90deg,transparent 0 46px,#b9c1cc 46px 50px);opacity:.6;}
+  .calle{position:absolute;left:0;right:0;bottom:0;height:18%;background:#4a5560;}
+  .calle::before{content:"";position:absolute;top:50%;left:0;right:0;height:5px;transform:translateY(-50%);
+    background-image:repeating-linear-gradient(90deg,#ffd54a 0 34px,transparent 34px 66px);}
+
+  /* edificios */
+  .edificio{position:absolute;bottom:32%;transform:translateX(-50%);cursor:pointer;text-align:center;}
+  .edificio .cuerpo{width:120px;height:130px;border-radius:12px 12px 6px 6px;position:relative;
+    box-shadow:0 8px 0 rgba(0,0,0,.15);display:flex;align-items:flex-end;justify-content:center;}
+  .edificio .techo{position:absolute;top:-16px;left:-8px;right:-8px;height:20px;border-radius:8px;}
+  .edificio .puerta{width:42px;height:54px;background:#3a2a1e;border-radius:8px 8px 0 0;margin-bottom:0;
+    border:3px solid rgba(0,0,0,.2);}
+  .edificio .ventana{position:absolute;width:22px;height:22px;background:#bfe9ff;border-radius:4px;
+    border:2px solid rgba(255,255,255,.6);}
+  .edificio .cartel{position:absolute;top:-44px;left:50%;transform:translateX(-50%);white-space:nowrap;
+    background:#fff;border-radius:12px;padding:3px 10px;font-size:13px;font-weight:800;
+    box-shadow:0 3px 0 rgba(0,0,0,.12);}
+  .edificio .cartel .ico{font-size:18px;}
+  .edificio:active{transform:translateX(-50%) scale(.97);}
+  .toque{position:absolute;top:-66px;left:50%;transform:translateX(-50%);font-size:12px;
+    background:var(--amarillo);border-radius:10px;padding:2px 8px;font-weight:800;animation:flota 1.4s ease-in-out infinite;}
+  @keyframes flota{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(-5px);}}
+
+  /* decoraciones de calle */
+  .deco{position:absolute;transform:translateX(-50%);font-size:34px;cursor:pointer;line-height:1;}
+  .deco.fija{cursor:default;}
+  .auto{position:absolute;bottom:7%;font-size:40px;animation:manejar linear infinite;}
+  @keyframes manejar{from{left:-12%;}to{left:108%;}}
+  .moneda{position:absolute;transform:translateX(-50%);font-size:26px;cursor:pointer;
+    animation:brilla 1s ease-in-out infinite;filter:drop-shadow(0 0 4px gold);}
+  @keyframes brilla{0%,100%{transform:translateX(-50%) translateY(0) scale(1);}50%{transform:translateX(-50%) translateY(-6px) scale(1.1);}}
+
+  /* avatar */
+  .avatar{position:absolute;bottom:24%;transform:translateX(-50%);font-size:46px;z-index:20;
+    transition:left .05s linear;line-height:1;will-change:left;}
+  .avatar .cuerpo{display:inline-block;}
+  .avatar.camina .cuerpo{animation:pasos .35s ease-in-out infinite;}
+  @keyframes pasos{0%,100%{transform:translateY(0) rotate(-3deg);}50%{transform:translateY(-6px) rotate(3deg);}}
+  .avatar.izq{transform:translateX(-50%) scaleX(-1);}
+  .burbuja{position:absolute;bottom:78%;left:50%;transform:translateX(-50%);background:#fff;
+    border-radius:12px;padding:4px 10px;font-size:14px;font-weight:700;white-space:nowrap;
+    box-shadow:0 3px 0 rgba(0,0,0,.12);}
+
+  /* ---------- Paneles interiores (cajero / mall) ---------- */
+  .vista{position:absolute;inset:0;display:flex;flex-direction:column;padding:12px;
+    max-width:560px;margin:0 auto;}
+  .cabecera{display:flex;align-items:center;gap:10px;margin:34px 0 10px;}
+  .cabecera .volver{border:none;background:#fff;border-radius:12px;padding:9px 13px;font-size:18px;
+    font-weight:800;font-family:inherit;box-shadow:0 4px 0 rgba(0,0,0,.1);cursor:pointer;}
+  .cabecera h2{margin:0;font-size:20px;flex:1;}
+  .panel{background:#fff;border-radius:var(--radio);padding:16px;box-shadow:0 6px 0 rgba(0,0,0,.08);}
+  .globo{background:#fff8d6;border:3px dashed var(--amarillo);border-radius:16px;padding:12px;
+    text-align:center;font-size:16px;margin:10px 0;}
+  .titulo{text-align:center;font-size:24px;font-weight:800;margin:6px 0 14px;}
+
+  /* ---------- Cajero (máquina + tarjeta) ---------- */
+  .cajero-bg{position:absolute;inset:0;background:linear-gradient(160deg,#3a4a5e,#243443);}
+  .atm{position:relative;width:230px;margin:6px auto 0;background:#dfe6ee;border-radius:18px;
+    padding:14px;box-shadow:0 10px 0 #9aa7b5, inset 0 2px 6px #fff;}
+  .atm .marca{text-align:center;font-weight:800;color:#345;letter-spacing:1px;margin-bottom:8px;}
+  .atm .screen{background:#0b2a4a;color:#cde9ff;border-radius:10px;padding:14px;min-height:84px;
+    text-align:center;font-size:16px;display:flex;align-items:center;justify-content:center;
+    box-shadow:inset 0 0 16px rgba(0,0,0,.6);}
+  .atm .slot{margin:12px auto 4px;width:120px;height:14px;background:#222;border-radius:7px;
+    box-shadow:inset 0 2px 4px #000;position:relative;}
+  .atm .slot::after{content:"INSERTÁ AQUÍ";position:absolute;top:16px;left:0;right:0;text-align:center;
+    font-size:9px;color:#345;font-weight:800;}
+  .atm .luces{display:flex;justify-content:center;gap:6px;margin-top:14px;}
+  .atm .luces i{width:8px;height:8px;border-radius:50%;background:#7bd88f;display:block;
+    animation:parpadeo 1.2s infinite;}
+  .atm .luces i:nth-child(2){animation-delay:.4s;background:#ffd54a;}
+  .atm .luces i:nth-child(3){animation-delay:.8s;background:#7fb6ff;}
+  @keyframes parpadeo{50%{opacity:.3;}}
+
+  .tarjeta{position:absolute;left:50%;width:96px;height:60px;border-radius:8px;
+    background:linear-gradient(135deg,#ffb347,#ff7e5f);box-shadow:0 6px 12px rgba(0,0,0,.4);
+    transform:translateX(-50%);z-index:5;}
+  .tarjeta .chip{position:absolute;top:10px;left:10px;width:16px;height:12px;border-radius:3px;
+    background:linear-gradient(#ffe082,#c9a227);}
+  .tarjeta .raya{position:absolute;bottom:10px;left:8px;right:8px;height:6px;background:rgba(255,255,255,.6);border-radius:3px;}
+  .tarjeta .marca{position:absolute;top:8px;right:10px;font-size:9px;font-weight:800;color:#fff;}
+  .tarjeta.insertando{animation:insertar 1.1s forwards;}
+  .tarjeta.saliendo{animation:expulsar 1.1s forwards;}
+  @keyframes insertar{
+    0%{top:78%;opacity:1;transform:translateX(-50%) scale(1);}
+    70%{top:30%;opacity:1;transform:translateX(-50%) scale(.9);}
+    100%{top:24%;opacity:0;transform:translateX(-50%) scale(.55);}
+  }
+  @keyframes expulsar{
+    0%{top:24%;opacity:0;transform:translateX(-50%) scale(.55);}
+    30%{top:30%;opacity:1;transform:translateX(-50%) scale(.9);}
+    100%{top:78%;opacity:1;transform:translateX(-50%) scale(1);}
+  }
+  .mano{position:absolute;left:50%;transform:translateX(-50%);bottom:8%;font-size:40px;}
+
+  .pin-display{letter-spacing:12px;font-size:34px;text-align:center;margin:8px 0;min-height:40px;
+    color:var(--azul-osc);font-weight:800;}
+  .teclado{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+  .tecla{border:none;border-radius:12px;padding:16px;font-size:24px;font-weight:800;font-family:inherit;
+    background:var(--gris);color:var(--texto);box-shadow:0 4px 0 rgba(0,0,0,.12);cursor:pointer;}
+  .tecla:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.12);}
+  .tecla.ok{background:var(--verde);color:#fff;} .tecla.borrar{background:var(--amarillo);}
+
+  /* ---------- Mall ---------- */
+  .mall-bg{position:absolute;inset:0;background:linear-gradient(160deg,#ffe0f0,#fff3f8 55%,#e8f0ff);}
+  .tiendas-tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;margin-bottom:4px;}
+  .tab{flex:0 0 auto;border:none;border-radius:999px;padding:9px 14px;font-size:14px;font-weight:700;
+    font-family:inherit;background:#fff;color:var(--texto);box-shadow:0 3px 0 rgba(0,0,0,.08);cursor:pointer;}
+  .tab.activa{background:var(--azul);color:#fff;}
+  .productos{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;overflow-y:auto;padding-bottom:90px;}
+  .producto{background:#fff;border-radius:16px;padding:12px 8px;text-align:center;
+    box-shadow:0 5px 0 rgba(0,0,0,.08);cursor:pointer;position:relative;}
+  .producto:active{transform:scale(.96);}
+  .producto.no-alcanza{filter:grayscale(.7);opacity:.55;}
+  .producto .pemoji{font-size:40px;} .producto .pnombre{font-weight:700;font-size:14px;margin-top:2px;}
+  .producto .pprecio{color:var(--verde-osc);font-weight:800;font-size:16px;}
+  .producto .badge{position:absolute;top:-8px;right:-8px;background:var(--rojo);color:#fff;border-radius:999px;
+    min-width:26px;height:26px;font-size:14px;font-weight:800;display:flex;align-items:center;
+    justify-content:center;padding:0 6px;}
+  .carrito-barra{position:absolute;left:12px;right:12px;bottom:12px;background:var(--verde);color:#fff;
+    border-radius:var(--radio);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;
+    box-shadow:0 6px 14px rgba(0,0,0,.2);font-weight:800;font-size:17px;cursor:pointer;}
+
+  @keyframes pop{0%{transform:scale(.5);opacity:0;}60%{transform:scale(1.12);}100%{transform:scale(1);opacity:1;}}
+  .celebra{animation:pop .35s ease-out;}
+  @keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-8px);}75%{transform:translateX(8px);}}
+  .tiembla{animation:shake .3s;}
+  </style>
 </head>
 <body>
   <div id="app"></div>
+  <script>
+  /* =====================================================================
+     ███  DATOS EDITABLES — cambiá acá para hacer crecer el juego  ███
+     ===================================================================== */
+  const CONFIG = {
+    saldoBancoInicial: 1000,
+    claveCorrecta: "1234",
+    intentosClave: 3,
+    montosRapidos: [50, 100, 200, 500],
+    moneda: "$",
+    sonido: true,
+  };
 
-  <!-- Datos primero (config + productos), después la lógica -->
-  <script src="data.js"></script>
-  <script src="game.js"></script>
+  // Avatares para elegir
+  const AVATARES = ["🧒","👦","👧","🧑","👩","👨","🧑‍🦱","👱‍♀️","🦸","🦸‍♀️","🧙","🥷"];
+
+  // Locales del centro comercial (cada "tienda" crea su pestaña sola)
+  const PRODUCTOS = [
+    // 🍔 Comidas
+    {id:"hamburguesa",nombre:"Hamburguesa",emoji:"🍔",precio:45,tienda:"Comidas"},
+    {id:"pizza",nombre:"Pizza",emoji:"🍕",precio:35,tienda:"Comidas"},
+    {id:"pancho",nombre:"Pancho",emoji:"🌭",precio:30,tienda:"Comidas"},
+    {id:"papas",nombre:"Papas fritas",emoji:"🍟",precio:30,tienda:"Comidas"},
+    {id:"gaseosa",nombre:"Gaseosa",emoji:"🥤",precio:20,tienda:"Comidas"},
+    // 🍨 Heladería
+    {id:"helado",nombre:"Helado",emoji:"🍨",precio:30,tienda:"Heladería"},
+    {id:"cono",nombre:"Cono",emoji:"🍦",precio:25,tienda:"Heladería"},
+    {id:"torta",nombre:"Porción de torta",emoji:"🍰",precio:55,tienda:"Heladería"},
+    {id:"dona",nombre:"Dona",emoji:"🍩",precio:25,tienda:"Heladería"},
+    // 🧸 Juguetería
+    {id:"peluche",nombre:"Peluche",emoji:"🧸",precio:120,tienda:"Juguetería"},
+    {id:"pelota",nombre:"Pelota",emoji:"⚽",precio:60,tienda:"Juguetería"},
+    {id:"robot",nombre:"Robot",emoji:"🤖",precio:200,tienda:"Juguetería"},
+    {id:"autito",nombre:"Autito",emoji:"🚗",precio:80,tienda:"Juguetería"},
+    {id:"rompe",nombre:"Rompecabezas",emoji:"🧩",precio:50,tienda:"Juguetería"},
+    {id:"juego",nombre:"Juego de mesa",emoji:"🎲",precio:90,tienda:"Juguetería"},
+    // 👕 Ropa
+    {id:"remera",nombre:"Remera",emoji:"👕",precio:90,tienda:"Ropa"},
+    {id:"pantalon",nombre:"Pantalón",emoji:"👖",precio:130,tienda:"Ropa"},
+    {id:"zapatillas",nombre:"Zapatillas",emoji:"👟",precio:150,tienda:"Ropa"},
+    {id:"gorra",nombre:"Gorra",emoji:"🧢",precio:40,tienda:"Ropa"},
+    {id:"campera",nombre:"Campera",emoji:"🧥",precio:180,tienda:"Ropa"},
+    // 📚 Librería
+    {id:"libro",nombre:"Libro",emoji:"📚",precio:70,tienda:"Librería"},
+    {id:"lapices",nombre:"Lápices",emoji:"🖍️",precio:35,tienda:"Librería"},
+    {id:"mochila",nombre:"Mochila",emoji:"🎒",precio:110,tienda:"Librería"},
+    {id:"cuaderno",nombre:"Cuaderno",emoji:"📓",precio:30,tienda:"Librería"},
+    // 📱 Tecnología
+    {id:"auriculares",nombre:"Auriculares",emoji:"🎧",precio:200,tienda:"Tecnología"},
+    {id:"joystick",nombre:"Joystick",emoji:"🎮",precio:150,tienda:"Tecnología"},
+    {id:"celu",nombre:"Celular",emoji:"📱",precio:500,tienda:"Tecnología"},
+    {id:"tablet",nombre:"Tablet",emoji:"💻",precio:600,tienda:"Tecnología"},
+    // 🐾 Mascotas
+    {id:"hueso",nombre:"Hueso",emoji:"🦴",precio:25,tienda:"Mascotas"},
+    {id:"pez",nombre:"Pecera",emoji:"🐠",precio:120,tienda:"Mascotas"},
+    {id:"gato",nombre:"Gatito",emoji:"🐱",precio:300,tienda:"Mascotas"},
+    {id:"perro",nombre:"Perrito",emoji:"🐶",precio:350,tienda:"Mascotas"},
+    // ⚽ Deportes
+    {id:"bici",nombre:"Bicicleta",emoji:"🚲",precio:400,tienda:"Deportes"},
+    {id:"skate",nombre:"Skate",emoji:"🛹",precio:220,tienda:"Deportes"},
+    {id:"raqueta",nombre:"Raqueta",emoji:"🎾",precio:140,tienda:"Deportes"},
+    {id:"patines",nombre:"Patines",emoji:"⛸️",precio:180,tienda:"Deportes"},
+  ];
+
+  /* =====================================================================
+     ESTADO
+     ===================================================================== */
+  const estado = {
+    avatar:"🧒", nombre:"",
+    saldoBanco:CONFIG.saldoBancoInicial, efectivo:0, monedas:0,
+    scene:"avatar",
+    avatarX:50,            // posición horizontal del avatar en la ciudad (%)
+    carrito:{}, tiendaActiva:null,
+    cajeroPaso:"acercarse", pinEscrito:"", intentos:CONFIG.intentosClave, tarjetaDentro:false,
+    monedasJuntadas:[],    // ids de monedas ya levantadas
+  };
+
+  const $app = () => document.getElementById("app");
+  const plata = n => CONFIG.moneda + n;
+
+  function guardar(){ try{ localStorage.setItem("ciudadJuego", JSON.stringify({
+    avatar:estado.avatar,nombre:estado.nombre,saldoBanco:estado.saldoBanco,
+    efectivo:estado.efectivo,monedas:estado.monedas})); }catch(e){} }
+  function cargar(){ try{ const d=JSON.parse(localStorage.getItem("ciudadJuego"));
+    if(d){estado.avatar=d.avatar||"🧒";estado.nombre=d.nombre||"";
+      estado.saldoBanco=d.saldoBanco??CONFIG.saldoBancoInicial;
+      estado.efectivo=d.efectivo??0;estado.monedas=d.monedas??0;} }catch(e){} }
+
+  /* ---------- Sonidos ---------- */
+  let actx=null;
+  function beep(f=440,d=.12,t="sine",v=.15){ if(!CONFIG.sonido)return;
+    try{ actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+      const o=actx.createOscillator(),g=actx.createGain();
+      o.type=t;o.frequency.value=f;g.gain.value=v;o.connect(g);g.connect(actx.destination);
+      o.start();g.gain.exponentialRampToValueAtTime(.0001,actx.currentTime+d);o.stop(actx.currentTime+d);
+    }catch(e){} }
+  const sTecla=()=>beep(660,.06,"square",.08);
+  const sOk=()=>{beep(523,.1);setTimeout(()=>beep(784,.15),90);};
+  const sError=()=>beep(160,.3,"sawtooth",.12);
+  const sMoneda=()=>{beep(880,.07);setTimeout(()=>beep(1175,.09),70);};
+  const sPaso=()=>beep(300,.04,"triangle",.05);
+  const sFiesta=()=>{[523,659,784,1047].forEach((f,i)=>setTimeout(()=>beep(f,.15),i*100));};
+
+  /* ---------- HUD ---------- */
+  function hud(){ return `
+    <div class="hud">
+      <div class="chip banco"><div class="et">🏦 Banco</div><div class="mo">${plata(estado.saldoBanco)}</div></div>
+      <div class="chip efe"><div class="et">👛 Efectivo</div><div class="mo">${plata(estado.efectivo)}</div></div>
+      <div class="chip mon"><div class="et">🪙 Monedas</div><div class="mo">${estado.monedas}</div></div>
+    </div>`; }
+
+  /* ---------- Router ---------- */
+  function irA(s){ estado.scene=s; render(); }
+  function render(){
+    guardar();
+    const s=estado.scene;
+    if(s==="avatar") renderAvatar();
+    else if(s==="ciudad") renderCiudad();
+    else if(s==="cajero") renderCajero();
+    else if(s==="mall") renderMall();
+    else renderCiudad();
+  }
+
+  /* =====================================================================
+     PANTALLA: Elegir avatar
+     ===================================================================== */
+  function renderAvatar(){
+    $app().innerHTML = `
+      <div class="pick">
+        <h1>🏙️ Mi Ciudad</h1>
+        <p>Elegí tu personaje y tu nombre</p>
+        <div class="chars">${AVATARES.map(a=>
+          `<div class="char ${a===estado.avatar?"sel":""}" data-a="${a}">${a}</div>`).join("")}</div>
+        <input id="nombre" maxlength="12" placeholder="Tu nombre" value="${estado.nombre}" />
+        <button class="btn verde" id="jugar">▶️ ¡Jugar!</button>
+      </div>`;
+    $app().querySelectorAll("[data-a]").forEach(el=>el.onclick=()=>{
+      estado.avatar=el.dataset.a; beep(600,.08);
+      $app().querySelectorAll(".char").forEach(c=>c.classList.remove("sel"));
+      el.classList.add("sel");
+    });
+    document.getElementById("jugar").onclick=()=>{
+      estado.nombre=document.getElementById("nombre").value.trim();
+      sOk(); irA("ciudad");
+    };
+  }
+
+  /* =====================================================================
+     CIUDAD (mapa con avatar que camina)
+     ===================================================================== */
+  const EDIFICIOS = [
+    {id:"cajero", x:20, color:"#5b8def", techo:"#3a6fd6", ico:"🏧", nombre:"Banco / Cajero"},
+    {id:"plaza",  x:50, color:null}, // plaza decorativa
+    {id:"mall",   x:80, color:"#ff7eb3", techo:"#e85d97", ico:"🏬", nombre:"Centro Comercial"},
+  ];
+  // Monedas tiradas en la vereda
+  const MONEDAS = [
+    {id:"m1",x:34}, {id:"m2",x:62}, {id:"m3",x:90},
+  ];
+
+  function renderCiudad(){
+    const edHtml = EDIFICIOS.map(e=>{
+      if(e.id==="plaza"){
+        return `<div class="deco fija" style="left:50%;bottom:33%;font-size:54px">⛲</div>
+                <div class="deco fija" style="left:43%;bottom:33%;font-size:40px">🌳</div>
+                <div class="deco fija" style="left:57%;bottom:33%;font-size:40px">🌳</div>
+                <div class="deco" data-banco="${e.x}" style="left:50%;bottom:24%;font-size:34px">🪑</div>`;
+      }
+      return `
+        <div class="edificio" data-entrar="${e.id}" data-x="${e.x}" style="left:${e.x}%">
+          <div class="toque">¡Tocá! 👆</div>
+          <div class="cartel"><span class="ico">${e.ico}</span> ${e.nombre}</div>
+          <div class="cuerpo" style="background:${e.color}">
+            <div class="techo" style="background:${e.techo}"></div>
+            <div class="ventana" style="left:14px;top:18px"></div>
+            <div class="ventana" style="right:14px;top:18px"></div>
+            <div class="puerta"></div>
+          </div>
+        </div>`;
+    }).join("");
+
+    const monHtml = MONEDAS.filter(m=>!estado.monedasJuntadas.includes(m.id))
+      .map(m=>`<div class="moneda" data-moneda="${m.id}" data-x="${m.x}" style="left:${m.x}%;bottom:25%">🪙</div>`).join("");
+
+    $app().innerHTML = `
+      <div class="ciudad">
+        <div class="sol">☀️</div>
+        <div class="nube" style="top:12%;animation-duration:38s">☁️</div>
+        <div class="nube" style="top:22%;animation-duration:55s;animation-delay:-20s">☁️</div>
+        ${hud()}
+        <button class="sonido-btn" id="snd">${CONFIG.sonido?"🔊":"🔇"}</button>
+
+        <!-- decoraciones fijas -->
+        <div class="deco fija" style="left:8%;bottom:33%;font-size:38px">🌳</div>
+        <div class="deco fija" style="left:33%;bottom:33%;font-size:30px">🚦</div>
+        <div class="deco fija" style="left:92%;bottom:33%;font-size:38px">🌳</div>
+        <div class="deco" data-saluda style="left:66%;bottom:25%;font-size:34px">🧍</div>
+        <div class="deco" data-saluda style="left:12%;bottom:25%;font-size:34px">🧍‍♀️</div>
+        <div class="deco" data-saluda style="left:72%;bottom:24%;font-size:30px">🐕</div>
+
+        ${edHtml}
+        ${monHtml}
+
+        <div class="vereda"></div>
+        <div class="calle"></div>
+        <div class="auto" style="animation-duration:7s">🚗</div>
+        <div class="auto" style="animation-duration:11s;animation-delay:-4s;bottom:11%">🚕</div>
+
+        <div class="avatar" id="avatar" style="left:${estado.avatarX}%">
+          <span class="cuerpo">${estado.avatar}</span>
+        </div>
+        <div style="position:absolute;bottom:1%;left:0;right:0;text-align:center;font-size:12px;color:#fff;text-shadow:0 1px 2px #000">
+          Tocá un lugar para caminar • 🏧 sacá plata • 🏬 comprá • 🪙 juntá monedas
+        </div>
+      </div>`;
+
+    document.getElementById("snd").onclick=()=>{CONFIG.sonido=!CONFIG.sonido;
+      document.getElementById("snd").textContent=CONFIG.sonido?"🔊":"🔇";if(CONFIG.sonido)beep(700,.1);};
+
+    const av=document.getElementById("avatar");
+
+    // caminar hacia un x% y al llegar ejecutar cb
+    function caminarA(x, cb){
+      x=Math.max(5,Math.min(95,x));
+      const dist=Math.abs(x-estado.avatarX);
+      const dur=Math.max(.35, dist/22); // velocidad
+      av.classList.toggle("izq", x<estado.avatarX);
+      av.classList.add("camina");
+      av.style.transition=`left ${dur}s linear`;
+      // pasos sonido
+      let n=Math.round(dur/0.18), c=0;
+      const tic=setInterval(()=>{sPaso();if(++c>=n)clearInterval(tic);},180);
+      requestAnimationFrame(()=>{ av.style.left=x+"%"; });
+      estado.avatarX=x;
+      setTimeout(()=>{ av.classList.remove("camina"); clearInterval(tic); if(cb)cb(); }, dur*1000+20);
+    }
+
+    // entrar a edificios
+    $app().querySelectorAll("[data-entrar]").forEach(e=>{
+      e.onclick=()=>{ const dest=parseFloat(e.dataset.x); beep(500,.08);
+        caminarA(dest, ()=>{ sOk(); irA(e.dataset.entrar==="cajero"?"cajero":"mall"); }); };
+    });
+
+    // juntar monedas
+    $app().querySelectorAll("[data-moneda]").forEach(m=>{
+      m.onclick=()=>{ const id=m.dataset.moneda, dx=parseFloat(m.dataset.x);
+        caminarA(dx, ()=>{ sMoneda(); estado.monedasJuntadas.push(id);
+          estado.monedas++; estado.efectivo+=5; // cada moneda = $5 encontrados
+          m.remove(); actualizarHud(); burbuja("+ $5 🪙"); }); };
+    });
+
+    // saludar a NPCs / banco
+    $app().querySelectorAll("[data-saluda]").forEach(n=>{
+      n.onclick=()=>{ beep(700,.08); n.style.transition="transform .2s";
+        n.style.transform="translateX(-50%) translateY(-10px)";
+        setTimeout(()=>n.style.transform="translateX(-50%)",200);
+        burbuja(["¡Hola! 👋","¡Qué linda ciudad!","¡Guau! 🐶","Buen día ☀️"][Math.floor(Math.random()*4)]); };
+    });
+    $app().querySelectorAll("[data-banco]").forEach(b=>{
+      b.onclick=()=>caminarA(parseFloat(b.dataset.banco),()=>burbuja("A descansar 😌"));
+    });
+
+    function burbuja(txt){
+      const old=av.querySelector(".burbuja"); if(old)old.remove();
+      const b=document.createElement("div"); b.className="burbuja"; b.textContent=txt;
+      av.appendChild(b); setTimeout(()=>b.remove(),1400);
+    }
+    function actualizarHud(){
+      const chips=$app().querySelectorAll(".hud .mo");
+      if(chips[1])chips[1].textContent=plata(estado.efectivo);
+      if(chips[2])chips[2].textContent=estado.monedas;
+      guardar();
+    }
+  }
+
+  /* =====================================================================
+     CAJERO (con tarjeta física)
+     ===================================================================== */
+  function cabecera(titulo){ return `
+    <div class="cabecera">
+      <button class="volver" id="volver">⬅️</button>
+      <h2>${titulo}</h2>
+    </div>`; }
+
+  function renderCajero(){
+    const bg=`<div class="cajero-bg"></div>`;
+    let cuerpo="";
+
+    if(estado.cajeroPaso==="acercarse" || estado.cajeroPaso==="insertando"){
+      cuerpo=`
+        <div class="atm">
+          <div class="marca">🏦 BANCO CIUDAD</div>
+          <div class="screen">${estado.cajeroPaso==="insertando"?"Leyendo tarjeta… 💳":"¡Hola "+(estado.nombre||"amig@")+"! 👋<br>Insertá tu tarjeta"}</div>
+          <div class="slot"></div>
+          <div class="luces"><i></i><i></i><i></i></div>
+        </div>
+        ${estado.cajeroPaso==="acercarse"
+          ? `<div class="mano">🤚💳</div>
+             <button class="btn verde" id="insertar" style="max-width:260px;margin:14px auto 0">💳 Insertar tarjeta</button>`
+          : `<div class="tarjeta insertando"><div class="chip"></div><div class="marca">BANCO</div><div class="raya"></div></div>`}
+      `;
+    }
+    else if(estado.cajeroPaso==="pin"){
+      const pts=estado.pinEscrito.replace(/./g,"●")||"_ _ _ _";
+      cuerpo=`
+        <div class="atm">
+          <div class="marca">🏦 BANCO CIUDAD</div>
+          <div class="screen">Escribí tu clave 🔒<br>Te quedan ${estado.intentos} intento(s)</div>
+          <div class="luces"><i></i><i></i><i></i></div>
+        </div>
+        <div class="panel" style="max-width:300px;margin:12px auto 0">
+          <div class="pin-display">${pts}</div>
+          <div class="teclado" id="teclado"></div>
+          <div class="globo" style="margin-top:10px">Pista 🔑 La clave es <b>${CONFIG.claveCorrecta}</b></div>
+        </div>`;
+    }
+    else if(estado.cajeroPaso==="menu"){
+      cuerpo=`
+        <div class="atm"><div class="marca">🏦 BANCO CIUDAD</div>
+          <div class="screen" id="msg">✅ ¡Clave correcta!<br>¿Qué querés hacer?</div>
+          <div class="luces"><i></i><i></i><i></i></div></div>
+        <div style="max-width:300px;margin:12px auto 0">
+          <button class="btn verde" id="extraer">💵 Sacar plata</button>
+          <button class="btn" id="saldo">🔍 Ver mi saldo</button>
+          <button class="btn rojo" id="retirar">💳 Retirar tarjeta</button>
+        </div>`;
+    }
+    else if(estado.cajeroPaso==="extraer"){
+      const b=CONFIG.montosRapidos.map(m=>{const ok=m<=estado.saldoBanco;
+        return `<button class="btn ${ok?"verde":"gris"}" data-monto="${m}" ${ok?"":"disabled"}>${plata(m)}</button>`;}).join("");
+      cuerpo=`
+        <div class="atm"><div class="marca">🏦 BANCO CIUDAD</div>
+          <div class="screen" id="msg">¿Cuánto querés sacar? 💵</div>
+          <div class="luces"><i></i><i></i><i></i></div></div>
+        <div style="max-width:300px;margin:12px auto 0">
+          ${b}<button class="btn amarillo" id="volvermenu">⬅️ Volver</button>
+        </div>`;
+    }
+    else if(estado.cajeroPaso==="saliendo"){
+      cuerpo=`
+        <div class="atm"><div class="marca">🏦 BANCO CIUDAD</div>
+          <div class="screen">Tomá tu tarjeta 💳<br>¡Gracias! 👋</div>
+          <div class="slot"></div><div class="luces"><i></i><i></i><i></i></div></div>
+        <div class="tarjeta saliendo"><div class="chip"></div><div class="marca">BANCO</div><div class="raya"></div></div>
+        <div class="mano">🤚</div>`;
+    }
+
+    $app().innerHTML = `${bg}
+      <div class="vista">
+        ${cabecera("🏧 Cajero")}
+        ${hud()}
+        <div style="position:relative;flex:1">${cuerpo}</div>
+      </div>`;
+
+    const volver=document.getElementById("volver");
+    if(volver) volver.onclick=()=>{ beep(400,.08);
+      // si la tarjeta está dentro, primero la sacamos
+      if(estado.tarjetaDentro){ expulsarYsalir(); } else { estado.cajeroPaso="acercarse"; irA("ciudad"); } };
+
+    if(estado.cajeroPaso==="acercarse"){
+      document.getElementById("insertar").onclick=()=>{ sOk(); estado.cajeroPaso="insertando"; render();
+        setTimeout(()=>{ estado.tarjetaDentro=true; estado.pinEscrito=""; estado.intentos=CONFIG.intentosClave;
+          estado.cajeroPaso="pin"; render(); }, 1150); };
+    }
+    if(estado.cajeroPaso==="pin"){ construirTeclado(); }
+    if(estado.cajeroPaso==="menu"){
+      document.getElementById("extraer").onclick=()=>{beep(500,.08);estado.cajeroPaso="extraer";render();};
+      document.getElementById("saldo").onclick=()=>{beep(600,.08);
+        document.getElementById("msg").innerHTML=`Tenés ${plata(estado.saldoBanco)} en el banco 🏦`;};
+      document.getElementById("retirar").onclick=()=>expulsarYsalir();
+    }
+    if(estado.cajeroPaso==="extraer"){
+      $app().querySelectorAll("[data-monto]").forEach(x=>x.onclick=()=>extraer(parseInt(x.dataset.monto,10)));
+      document.getElementById("volvermenu").onclick=()=>{beep(400,.08);estado.cajeroPaso="menu";render();};
+    }
+  }
+
+  function expulsarYsalir(){
+    sOk(); estado.tarjetaDentro=false; estado.cajeroPaso="saliendo"; render();
+    setTimeout(()=>{ estado.cajeroPaso="acercarse"; irA("ciudad"); }, 1150);
+  }
+
+  function construirTeclado(){
+    const t=["1","2","3","4","5","6","7","8","9","borrar","0","ok"];
+    const c=document.getElementById("teclado");
+    c.innerHTML=t.map(k=>{
+      if(k==="borrar")return `<button class="tecla borrar" data-k="borrar">⌫</button>`;
+      if(k==="ok")return `<button class="tecla ok" data-k="ok">OK</button>`;
+      return `<button class="tecla" data-k="${k}">${k}</button>`;}).join("");
+    c.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>tecla(b.dataset.k));
+  }
+  function tecla(k){
+    if(k==="borrar"){sTecla();estado.pinEscrito=estado.pinEscrito.slice(0,-1);render();return;}
+    if(k==="ok"){verificarPin();return;}
+    if(estado.pinEscrito.length<4){sTecla();estado.pinEscrito+=k;render();}
+  }
+  function verificarPin(){
+    if(estado.pinEscrito===CONFIG.claveCorrecta){ sOk(); estado.cajeroPaso="menu"; render(); }
+    else{ sError(); estado.intentos--; estado.pinEscrito="";
+      if(estado.intentos<=0){ estado.tarjetaDentro=false; estado.cajeroPaso="saliendo"; render();
+        setTimeout(()=>{estado.cajeroPaso="acercarse";render();},1150);
+      } else { render(); const pd=document.querySelector(".pin-display"); if(pd)pd.classList.add("tiembla"); } }
+  }
+  function extraer(m){
+    if(m>estado.saldoBanco){sError();return;}
+    sMoneda(); estado.saldoBanco-=m; estado.efectivo+=m; estado.cajeroPaso="menu"; render();
+    document.getElementById("msg").innerHTML=`💸 Sacaste ${plata(m)}.<br>Ahora tenés ${plata(estado.efectivo)} 👛`;
+  }
+
+  /* =====================================================================
+     MALL (más locales)
+     ===================================================================== */
+  function tiendas(){ return [...new Set(PRODUCTOS.map(p=>p.tienda))]; }
+  function totalCarrito(){ return Object.entries(estado.carrito).reduce((t,[id,c])=>{
+    const p=PRODUCTOS.find(x=>x.id===id); return t+(p?p.precio*c:0);},0); }
+
+  function renderMall(){
+    if(!estado.tiendaActiva) estado.tiendaActiva=tiendas()[0];
+    const tabs=tiendas().map(t=>`<button class="tab ${t===estado.tiendaActiva?"activa":""}" data-t="${t}">${t}</button>`).join("");
+    const items=PRODUCTOS.filter(p=>p.tienda===estado.tiendaActiva).map(p=>{
+      const c=estado.carrito[p.id]||0, no=p.precio>estado.efectivo&&c===0;
+      return `<div class="producto ${no?"no-alcanza":""}" data-p="${p.id}">
+        ${c>0?`<div class="badge">${c}</div>`:""}
+        <div class="pemoji">${p.emoji}</div><div class="pnombre">${p.nombre}</div>
+        <div class="pprecio">${plata(p.precio)}</div></div>`;}).join("");
+    const tot=totalCarrito(), cant=Object.values(estado.carrito).reduce((a,b)=>a+b,0);
+
+    $app().innerHTML=`<div class="mall-bg"></div>
+      <div class="vista">
+        ${cabecera("🏬 Centro Comercial")}
+        ${hud()}
+        <div style="margin-top:6px"><span style="font-size:30px">${estado.avatar}</span> <b>${estado.nombre||"Vos"}</b> de compras 🛍️</div>
+        <div class="tiendas-tabs">${tabs}</div>
+        <div class="productos">${items}</div>
+        ${cant>0?`<div class="carrito-barra" id="pagar"><span>🛒 ${cant} cosa(s)</span><span>Pagar ${plata(tot)} ✅</span></div>`:""}
+      </div>`;
+
+    document.getElementById("volver").onclick=()=>{beep(400,.08);irA("ciudad");};
+    $app().querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{beep(550,.07);estado.tiendaActiva=b.dataset.t;render();});
+    $app().querySelectorAll("[data-p]").forEach(el=>el.onclick=()=>agregar(el.dataset.p));
+    const pg=document.getElementById("pagar"); if(pg)pg.onclick=pagar;
+  }
+  function agregar(id){
+    const p=PRODUCTOS.find(x=>x.id===id); if(!p)return;
+    if(totalCarrito()+p.precio>estado.efectivo){ sError(); flash(`No te alcanza 😅. Tenés ${plata(estado.efectivo)}. ¡Andá al cajero! 🏧`); return; }
+    sMoneda(); estado.carrito[id]=(estado.carrito[id]||0)+1; render();
+  }
+  function pagar(){
+    const tot=totalCarrito(); if(tot===0)return; if(tot>estado.efectivo){sError();return;}
+    sFiesta(); estado.efectivo-=tot;
+    const lista=Object.entries(estado.carrito).map(([id,c])=>{const p=PRODUCTOS.find(x=>x.id===id);return `${p.emoji} ${p.nombre} x${c}`;}).join("  ");
+    estado.carrito={};
+    $app().innerHTML=`<div class="mall-bg"></div>
+      <div class="vista"><div class="panel celebra" style="text-align:center;margin-top:50px">
+        <div style="font-size:64px">🎉</div><div class="titulo">¡Compraste!</div>
+        <div class="globo">${lista}</div>
+        <p>Gastaste <b>${plata(tot)}</b>. Te quedan <b>${plata(estado.efectivo)}</b> 👛</p>
+        <button class="btn verde" id="seguir">🛍️ Seguir comprando</button>
+        <button class="btn" id="ciudad">🏙️ Volver a la ciudad</button>
+      </div></div>`;
+    guardar();
+    document.getElementById("seguir").onclick=()=>{beep(500,.08);irA("mall");};
+    document.getElementById("ciudad").onclick=()=>{beep(500,.08);irA("ciudad");};
+  }
+
+  let flashT=null;
+  function flash(txt){
+    let g=document.getElementById("flashG");
+    if(!g){g=document.createElement("div");g.id="flashG";g.className="globo tiembla";
+      g.style.position="absolute";g.style.left="12px";g.style.right="12px";g.style.bottom="84px";g.style.zIndex=50;
+      $app().appendChild(g);}
+    g.innerHTML=txt; clearTimeout(flashT); flashT=setTimeout(()=>{if(g)g.remove();},2500);
+  }
+
+  /* ---------- Arranque ---------- */
+  window.addEventListener("DOMContentLoaded",()=>{ cargar(); render(); });
+  </script>
 </body>
 </html>
