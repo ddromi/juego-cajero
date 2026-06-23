@@ -414,6 +414,30 @@
   .vet-serv .vsc{font-size:13px;font-weight:800;color:var(--verde-osc);}
   .vet-serv.hecho{filter:grayscale(.5);opacity:.6;} .vet-serv.hecho .vsc{color:#888;}
 
+  /* ---------- Mascota que camina por la ciudad ---------- */
+  .mascota-ciudad{position:absolute;bottom:22%;transform:translateX(-50%);font-size:34px;z-index:18;
+    transition:left .25s linear;line-height:1;filter:drop-shadow(0 3px 2px rgba(0,0,0,.25));}
+  .mascota-ciudad.anda{animation:petTrot .34s ease-in-out infinite;}
+  @keyframes petTrot{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(-5px);}}
+  .pet-think{position:absolute;bottom:96%;left:50%;transform:translateX(-50%);background:#fff;
+    border-radius:12px;padding:1px 7px;font-size:15px;box-shadow:0 2px 0 rgba(0,0,0,.12);white-space:nowrap;
+    animation:flota 1.4s ease-in-out infinite;}
+
+  /* ---------- Botón + modal de la misión (lista de compras) ---------- */
+  .mision-btn{position:absolute;border:none;background:#fff;border-radius:14px;padding:7px 9px;
+    font-size:20px;box-shadow:0 3px 0 rgba(0,0,0,.14);cursor:pointer;z-index:40;line-height:1;text-align:center;}
+  .mision-btn .mb-badge{display:block;font-size:11px;font-weight:800;color:var(--azul-osc);margin-top:1px;}
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;
+    z-index:80;padding:18px;}
+  .modal-card{background:#fff;border-radius:20px;padding:18px;max-width:380px;width:100%;
+    box-shadow:0 12px 0 rgba(0,0,0,.22);animation:pop .25s ease-out;}
+  .mi-lista{display:flex;flex-direction:column;gap:6px;margin:6px 0;}
+  .mi-fila{display:flex;justify-content:space-between;gap:8px;background:#f3f6fb;border-radius:10px;
+    padding:8px 10px;font-size:14px;font-weight:700;}
+  .mi-fila.ok{background:#dff7e7;}
+  .mi-pres{text-align:center;margin-top:8px;font-size:14px;}
+  .mi-prog{text-align:center;font-weight:800;margin:4px 0 10px;}
+
   @keyframes pop{0%{transform:scale(.5);opacity:0;}60%{transform:scale(1.12);}100%{transform:scale(1);opacity:1;}}
   .celebra{animation:pop .35s ease-out;}
   @keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-8px);}75%{transform:translateX(8px);}}
@@ -523,6 +547,8 @@
     {id:"curar",  nombre:"Curar / Vacunar", emoji:"💉", stat:"salud",  costo:25, efecto:"sano y vacunado 💪"},
     {id:"comer",  nombre:"Dar de comer", emoji:"🍖", stat:"animo",    costo:10, efecto:"feliz y con la panza llena 😋"},
   ];
+  // Cuánto baja cada cuidado POR MINUTO (la mascota se ensucia / tiene hambre sola)
+  const DECAY = {limpieza:2.5, animo:3, salud:1.2, pelo:0.8};
 
   /* =====================================================================
      ESTADO
@@ -540,6 +566,7 @@
     pago:null,                 // datos del desafío de vuelto en curso
     mascotas:[], vetSel:0,     // mascotas adoptadas y la seleccionada en la vet
     vetOcupada:false,          // bloquea botones mientras corre una animación
+    mision:null,               // lista de compras con presupuesto
   };
 
   const $app = () => document.getElementById("app");
@@ -550,13 +577,14 @@
   function guardar(){ try{ localStorage.setItem("ciudadJuego", JSON.stringify({
     avatar:estado.avatar,nombre:estado.nombre,saldoBanco:estado.saldoBanco,
     efectivo:estado.efectivo,monedas:estado.monedas,practicaVuelto:estado.practicaVuelto,
-    mascotas:estado.mascotas})); }catch(e){} }
+    mascotas:estado.mascotas,mision:estado.mision})); }catch(e){} }
   function cargar(){ try{ const d=JSON.parse(localStorage.getItem("ciudadJuego"));
     if(d){estado.avatar=d.avatar??0;estado.nombre=d.nombre||"";
       estado.saldoBanco=d.saldoBanco??CONFIG.saldoBancoInicial;
       estado.efectivo=d.efectivo??0;estado.monedas=d.monedas??0;
       estado.practicaVuelto=d.practicaVuelto??true;
-      estado.mascotas=Array.isArray(d.mascotas)?d.mascotas:[];} }catch(e){} }
+      estado.mascotas=Array.isArray(d.mascotas)?d.mascotas:[];
+      estado.mision=d.mision||null;} }catch(e){} }
 
   /* ---------- Sonidos ---------- */
   let actx=null;
@@ -605,6 +633,7 @@
   /* ---------- Router ---------- */
   function irA(s){ estado.scene=s; render(); }
   function render(){
+    aplicarDecay();
     guardar();
     const s=estado.scene;
     if(s==="avatar") renderAvatar();
@@ -694,6 +723,14 @@
     const npcHtml = NPC_CIUDAD.map((n,i)=>
       `<div class="npc" data-saluda="${i}" style="left:${n.x}%">${personHTML(AVATARES[n.a],0.78)}</div>`).join("");
 
+    // mascota que camina al lado nuestro (la primera adoptada)
+    const pet0 = estado.mascotas[0];
+    const necesita = pet0 ? mascotaNecesita(pet0) : null;
+    const petCityHtml = pet0 ? `
+      <div class="mascota-ciudad" id="petCity" style="left:${clamp(estado.avatarX-6,3,97)}%">
+        ${necesita?`<div class="pet-think">${necesita.emoji}</div>`:""}${pet0.emoji}
+      </div>` : "";
+
     $app().innerHTML = `
       <div class="ciudad">
         <div class="sol">☀️</div>
@@ -701,6 +738,7 @@
         <div class="nube" style="top:22%;animation-duration:55s;animation-delay:-20s">☁️</div>
         ${hud()}
         <button class="sonido-btn" id="snd">${CONFIG.sonido?"🔊":"🔇"}</button>
+        ${botonMision("left:8px;top:56px")}
 
         <div class="deco fija" style="left:8%;bottom:33%;font-size:38px">🌳</div>
         <div class="deco fija" style="left:33%;bottom:33%;font-size:30px">🚦</div>
@@ -716,6 +754,7 @@
         <div class="auto-cap" style="bottom:7%;animation-duration:8s">${carHTML("#e8453c",1.25)}</div>
         <div class="auto-cap" style="bottom:11%;animation-duration:12s;animation-delay:-5s">${carHTML("#2a6df4",1.1)}</div>
 
+        ${petCityHtml}
         <div class="avatar" id="avatar" style="left:${estado.avatarX}%">
           ${personHTML(avAct(),1,"","cityperson")}
         </div>
@@ -724,22 +763,35 @@
 
     document.getElementById("snd").onclick=()=>{CONFIG.sonido=!CONFIG.sonido;
       document.getElementById("snd").textContent=CONFIG.sonido?"🔊":"🔇";if(CONFIG.sonido)beep(700,.1);};
+    const mb=document.getElementById("misionBtn");
+    if(mb) mb.onclick=()=>{ beep(600,.08); abrirMision(); };
 
     const av=document.getElementById("avatar");
     const per=document.getElementById("cityperson");
+    const petCity=document.getElementById("petCity");
 
     function caminarA(x, cb){
       x=clamp(x,5,95);
+      const movingLeft = x<estado.avatarX;
       const dist=Math.abs(x-estado.avatarX);
       const dur=Math.max(.35, dist/22);
-      per.classList.toggle("izq", x<estado.avatarX);
+      per.classList.toggle("izq", movingLeft);
       per.classList.add("walk");
       av.style.transition=`left ${dur}s linear`;
+      // la mascota trota detrás nuestro
+      if(petCity){
+        const px=clamp(x + (movingLeft?7:-7), 3, 97);
+        petCity.classList.add("anda");
+        petCity.style.transition=`left ${dur}s linear`;
+        petCity.style.transitionDelay=".1s";
+        requestAnimationFrame(()=>{ petCity.style.left=px+"%"; });
+      }
       let n=Math.round(dur/0.18), c=0;
       const tic=setInterval(()=>{sPaso();if(++c>=n)clearInterval(tic);},180);
       requestAnimationFrame(()=>{ av.style.left=x+"%"; });
       estado.avatarX=x;
-      setTimeout(()=>{ per.classList.remove("walk"); clearInterval(tic); if(cb)cb(); }, dur*1000+20);
+      setTimeout(()=>{ per.classList.remove("walk"); if(petCity)petCity.classList.remove("anda");
+        clearInterval(tic); if(cb)cb(); }, dur*1000+20);
     }
 
     $app().querySelectorAll("[data-entrar]").forEach(e=>{
@@ -999,6 +1051,7 @@
         </div>
         ${hud()}
         <button class="sonido-btn" id="snd">${CONFIG.sonido?"🔊":"🔇"}</button>
+        ${botonMision("right:8px;top:58px")}
         <button class="volver" id="volver" style="position:absolute;top:8px;left:8px;z-index:35;border:none;
           background:#fff;border-radius:12px;padding:9px 13px;font-size:18px;font-weight:800;
           box-shadow:0 4px 0 rgba(0,0,0,.1);cursor:pointer">⬅️</button>
@@ -1011,6 +1064,8 @@
     document.getElementById("snd").onclick=()=>{CONFIG.sonido=!CONFIG.sonido;
       document.getElementById("snd").textContent=CONFIG.sonido?"🔊":"🔇";if(CONFIG.sonido)beep(700,.1);};
     document.getElementById("volver").onclick=()=>{beep(400,.08);irA("ciudad");};
+    const mbM=document.getElementById("misionBtn");
+    if(mbM) mbM.onclick=()=>{ beep(600,.08); abrirMision(); };
 
     const world=document.getElementById("mworld");
     document.getElementById("mtap").onclick=(e)=>{
@@ -1187,6 +1242,19 @@
     const tienda=estado.tiendaActiva;
     // ¿Adoptamos alguna mascota en esta compra?
     const adoptados=adoptarMascotasDeCarrito();
+    // ¿Avanzamos / completamos la misión (lista de compras)?
+    const misionEstabaPendiente = estado.mision && !estado.mision.completada;
+    chequearMision(estado.carrito);
+    const misionCumplida = misionEstabaPendiente && estado.mision.completada;
+    let misionMsg="";
+    if(misionCumplida){
+      const dentro = estado.mision.gastado<=estado.mision.presupuesto;
+      estado.efectivo+=30; estado.monedas+=3;
+      misionMsg=`<div class="globo" style="background:#fff3c4;border-color:#ffce00">
+        📋 ¡Lista de compras completa! ${dentro?"Y no te pasaste del presupuesto 👏":""}<br>
+        Premio: <b>+$30</b> y <b>+3 🪙</b> 🎉</div>`;
+      nuevaMision(); // arrancá una lista nueva
+    }
     estado.carrito={};
     const vueltoMsg = pg
       ? `<div class="globo">✅ ¡Vuelto correcto!<br>Pagaste con ${plata(pg.pagaCon)} y te dieron <b>${plata(pg.correcto)}</b> de vuelto 💵</div>`
@@ -1203,6 +1271,7 @@
         <div class="globo">${lista}</div>
         ${vueltoMsg}
         ${adoptaMsg}
+        ${misionMsg}
         <p>Gastaste <b>${plata(tot)}</b>. Te quedan <b>${plata(estado.efectivo)}</b> 👛</p>
         ${adoptados.length?`<button class="btn" style="background:#2bbf9a" id="avet">🐾 Ir a la veterinaria</button>`:""}
         <button class="btn verde" id="seguir">🛍️ Seguir en esta tienda</button>
@@ -1262,7 +1331,9 @@
   }
 
   function renderVet(){
+    aplicarDecay();
     if(estado.vetSel>=estado.mascotas.length) estado.vetSel=estado.mascotas.length-1;
+    if(estado.vetSel<0) estado.vetSel=0;
     const tieneMascotas=estado.mascotas.length>0;
 
     let cuerpo;
@@ -1285,7 +1356,7 @@
         : "";
       const servicios = SERVICIOS_VET.map(sv=>{
         const naPet = sv.soloPeludo && !m.peludo;
-        const lleno = m[sv.stat]>=100;
+        const lleno = m[sv.stat]>=99;
         const dis = naPet || lleno;
         const etiqueta = naPet ? "No necesita" : (lleno ? "¡Listo! ✓" : plata(sv.costo));
         return `<button class="vet-serv ${dis?"hecho":""}" data-serv="${sv.id}" ${dis?"disabled":""}>
@@ -1307,10 +1378,10 @@
           <div class="pet-nombre">${m.emoji} <b>${m.nombre}</b> · ${est.txt}</div>
         </div>
         <div class="panel">
-          ${barra("Limpieza","🛁",m.limpieza,"#34b3ff")}
-          ${barra("Pelo","✂️",m.pelo,"#a06bff")}
-          ${barra("Salud","❤️",m.salud,"#ff5d6c")}
-          ${barra("Ánimo","😊",m.animo,"#ffb300")}
+          ${barra("Limpieza","🛁",Math.round(m.limpieza),"#34b3ff")}
+          ${barra("Pelo","✂️",Math.round(m.pelo),"#a06bff")}
+          ${barra("Salud","❤️",Math.round(m.salud),"#ff5d6c")}
+          ${barra("Ánimo","😊",Math.round(m.animo),"#ffb300")}
           <div class="vet-servicios">${servicios}</div>
           ${est.ok?`<div class="globo" style="background:#e3fff0;border-color:#5ad0b0">🏆 ¡${m.nombre} está perfecto! Sos un genio cuidando mascotas.</div>`:""}
         </div>`;
@@ -1383,6 +1454,83 @@
     setTimeout(()=>{ if(fx) fx.innerHTML=""; }, 1600);
   }
 
+  /* =====================================================================
+     MASCOTAS: desgaste con el tiempo (se ensucian / tienen hambre solas)
+     ===================================================================== */
+  function aplicarDecay(){
+    const now=Date.now();
+    estado.mascotas.forEach(m=>{
+      if(!m.t){ m.t=now; return; }
+      const min=(now-m.t)/60000;
+      if(min<=0){ m.t=now; return; }
+      m.limpieza=clamp(m.limpieza-DECAY.limpieza*min,0,100);
+      m.animo   =clamp(m.animo   -DECAY.animo   *min,0,100);
+      m.salud   =clamp(m.salud   -DECAY.salud   *min,0,100);
+      if(m.peludo) m.pelo=clamp(m.pelo-DECAY.pelo*min,0,100);
+      m.t=now;
+    });
+  }
+  // cuidado más urgente de una mascota (o null si está bien)
+  function mascotaNecesita(m){
+    const arr=[["limpieza","🛁",m.limpieza],["animo","🍖",m.animo],["salud","❤️",m.salud]];
+    if(m.peludo) arr.push(["pelo","✂️",m.pelo]);
+    arr.sort((a,b)=>a[2]-b[2]);
+    return arr[0][2]<45 ? {stat:arr[0][0],emoji:arr[0][1],val:Math.round(arr[0][2])} : null;
+  }
+
+  /* =====================================================================
+     MISIÓN: lista de compras con presupuesto
+     ===================================================================== */
+  function nuevaMision(){
+    const porTienda={};
+    PRODUCTOS.forEach(p=>{ (porTienda[p.tienda]=porTienda[p.tienda]||[]).push(p); });
+    const tiendas=Object.keys(porTienda).sort(()=>Math.random()-.5).slice(0,3);
+    const items=tiendas.map(t=>{ const arr=porTienda[t]; return arr[Math.floor(Math.random()*arr.length)]; })
+      .map(p=>({id:p.id,emoji:p.emoji,nombre:p.nombre,precio:p.precio,tienda:p.tienda}));
+    const suma=items.reduce((a,b)=>a+b.precio,0);
+    const presupuesto=Math.ceil((suma*1.2)/10)*10;
+    estado.mision={items, presupuesto, hechos:[], gastado:0, completada:false};
+  }
+  function chequearMision(carrito){
+    if(!estado.mision||estado.mision.completada) return false;
+    let nuevo=false;
+    for(const id of Object.keys(carrito)){
+      const it=estado.mision.items.find(x=>x.id===id);
+      if(it && !estado.mision.hechos.includes(id)){
+        estado.mision.hechos.push(id); estado.mision.gastado+=it.precio; nuevo=true;
+      }
+    }
+    if(estado.mision.hechos.length===estado.mision.items.length){ estado.mision.completada=true; }
+    return nuevo;
+  }
+  function abrirMision(){
+    const m=estado.mision; if(!m)return;
+    const filas=m.items.map(it=>{
+      const ok=m.hechos.includes(it.id);
+      return `<div class="mi-fila ${ok?"ok":""}">
+        <span>${ok?"✅":"⬜"} ${it.emoji} ${it.nombre}</span>
+        <span>${plata(it.precio)} · ${it.tienda}</span></div>`;
+    }).join("");
+    const dentro = m.gastado<=m.presupuesto;
+    const ov=document.createElement("div"); ov.className="modal"; ov.id="modalMision";
+    ov.innerHTML=`<div class="modal-card">
+      <div class="titulo">📋 Lista de compras</div>
+      <p style="text-align:center;margin:0 0 10px;opacity:.75">Comprá toda la lista sin pasarte del presupuesto 💡</p>
+      <div class="mi-lista">${filas}</div>
+      <div class="mi-pres">💰 Presupuesto: <b>${plata(m.presupuesto)}</b> · Gastado: <b style="color:${dentro?"var(--verde-osc)":"var(--rojo)"}">${plata(m.gastado)}</b></div>
+      <div class="mi-prog">${m.hechos.length}/${m.items.length} cosas ✓ ${m.completada?"— ¡completada! 🎉":""}</div>
+      <button class="btn verde" id="cerrarMision">¡A comprar! 🛍️</button>
+    </div>`;
+    document.body.appendChild(ov);
+    ov.onclick=(e)=>{ if(e.target===ov||e.target.id==="cerrarMision"){ beep(400,.08); ov.remove(); } };
+  }
+  function botonMision(estilo){
+    if(!estado.mision) return "";
+    const m=estado.mision;
+    return `<button class="mision-btn" id="misionBtn" style="${estilo}">📋
+      <span class="mb-badge">${m.hechos.length}/${m.items.length}</span></button>`;
+  }
+
   /* ---------- flash de aviso ---------- */
   let flashT=null;
   function flash(txt){
@@ -1394,7 +1542,7 @@
   }
 
   /* ---------- Arranque ---------- */
-  window.addEventListener("DOMContentLoaded",()=>{ cargar(); render(); });
+  window.addEventListener("DOMContentLoaded",()=>{ cargar(); if(!estado.mision) nuevaMision(); render(); });
   </script>
 </body>
 </html>

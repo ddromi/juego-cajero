@@ -28,6 +28,15 @@ Funciona en el navegador de la **computadora o el celular**. No necesita interne
   curarla/vacunarla y darle de comer**. Cada cuidado cuesta plata, sube una
   barra (Limpieza / Pelo / Salud / Ánimo) y tiene su animación; cuando la
   mascota queda perfecta, ¡festejo y recompensa! La mascota se guarda sola.
+- **🐶 La mascota te sigue**: una vez adoptada, **camina al lado tuyo** por la
+  ciudad. Si necesita cuidados muestra un globito (🛁/🍖/❤️/✂️) para avisarte.
+- **⏳ Las mascotas se cuidan solas… ¡o no!**: con el paso del tiempo se van
+  **ensuciando y poniendo con hambre**, así que hay que volver a la veterinaria
+  cada tanto.
+- **📋 Lista de compras (misión)**: el juego te da una lista de cosas para
+  comprar con un **presupuesto**. Tocás el botón 📋 (en la ciudad y en el
+  shopping) para ver la lista y el progreso; cuando la completás sin pasarte,
+  ganás un premio y aparece una lista nueva.
 
 ## ▶️ Cómo jugar
 
