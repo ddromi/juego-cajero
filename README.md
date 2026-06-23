@@ -37,6 +37,13 @@ Funciona en el navegador de la **computadora o el celular**. No necesita interne
   comprar con un **presupuesto**. Tocás el botón 📋 (en la ciudad y en el
   shopping) para ver la lista y el progreso; cuando la completás sin pasarte,
   ganás un premio y aparece una lista nueva.
+- **✏️ Le ponés el nombre vos**: en la veterinaria tocás el nombre de la mascota
+  y le escribís el que quieras.
+- **🛁 Mini-juego de baño**: al bañarla, **frotás con el dedo** (o el mouse)
+  sobre la mascota hasta sacarle toda la suciedad.
+- **⭐ Niveles de felicidad y accesorios**: cada cuidado le da cariño y sube de
+  nivel; al subir **desbloqueás accesorios** (🎀 moño, 🧢 gorrita, 🕶️ lentes,
+  👑 corona, 🦸 capa) que le podés poner y se ven también cuando te sigue.
 
 ## ▶️ Cómo jugar
 

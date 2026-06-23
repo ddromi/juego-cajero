@@ -390,7 +390,7 @@
   .pet-cara{position:absolute;top:-6px;right:-14px;font-size:30px;}
   .pet-bandage{position:absolute;top:24px;left:-12px;font-size:26px;transform:rotate(-18deg);}
   .pet-nombre{position:absolute;bottom:6px;left:0;right:0;text-align:center;font-size:14px;
-    color:#0d4a3e;z-index:3;text-shadow:0 1px 2px #fff;}
+    color:#0d4a3e;z-index:3;text-shadow:0 1px 2px #fff;cursor:pointer;}
   .vet-fx{position:absolute;inset:-40px 0 0 0;pointer-events:none;z-index:4;}
   .fxitem{position:absolute;bottom:40px;font-size:30px;opacity:0;}
   .fx-sube{animation:fxSube 1.3s ease-out forwards;}
@@ -413,6 +413,35 @@
   .vet-serv .vse{font-size:30px;} .vet-serv .vsn{font-weight:800;font-size:14px;}
   .vet-serv .vsc{font-size:13px;font-weight:800;color:var(--verde-osc);}
   .vet-serv.hecho{filter:grayscale(.5);opacity:.6;} .vet-serv.hecho .vsc{color:#888;}
+  .pet-acc-vet{position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-size:40px;z-index:3;}
+  /* nivel de felicidad + accesorios */
+  .vet-nivel{display:flex;align-items:center;gap:8px;margin:10px 0 2px;font-size:13px;font-weight:800;}
+  .vet-nivel .vn-lbl{flex:0 0 96px;color:#b97e00;}
+  .vet-acc-tit{font-weight:800;margin:12px 0 6px;font-size:14px;}
+  .vet-accs{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;}
+  .vet-acc{flex:0 0 auto;border:none;border-radius:14px;padding:8px 6px;width:74px;font-family:inherit;cursor:pointer;
+    background:#fff;box-shadow:0 4px 0 rgba(0,0,0,.1);display:flex;flex-direction:column;align-items:center;gap:2px;
+    border:3px solid #e3ece4;}
+  .vet-acc .vae{font-size:26px;} .vet-acc .van{font-size:11px;font-weight:800;}
+  .vet-acc.eq{border-color:#2bbf9a;background:#e3fff5;}
+  .vet-acc.lock{filter:grayscale(.6);opacity:.7;cursor:not-allowed;} .vet-acc.lock .van{color:#999;}
+
+  /* ---------- Mini-juego de baño ---------- */
+  .bano-tina{position:relative;height:200px;border-radius:18px;margin:6px 0;overflow:hidden;cursor:grab;
+    background:linear-gradient(#cdeffe 0%,#a8defc 55%,#7cc6f5 100%);touch-action:none;
+    box-shadow:inset 0 0 24px rgba(0,90,140,.25);border:4px solid #fff;}
+  .bano-tina:active{cursor:grabbing;}
+  .bano-pet{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);font-size:96px;line-height:1;
+    filter:drop-shadow(0 6px 6px rgba(0,0,0,.25));animation:petIdle 2.6s ease-in-out infinite;pointer-events:none;}
+  .bano-pet.peludo{filter:drop-shadow(0 6px 6px rgba(0,0,0,.25)) blur(.4px);transform:translateX(-50%) scale(1.05);}
+  .bano-pet.tiembla2{animation:shake .18s;}
+  .bano-pet.brilla2{filter:drop-shadow(0 0 14px #fff) drop-shadow(0 6px 6px rgba(0,0,0,.25));}
+  .mugre{position:absolute;width:26px;height:22px;background:radial-gradient(#7a5a3a,#5a3f24);border-radius:50%;
+    opacity:.85;transition:opacity .3s;pointer-events:none;box-shadow:0 0 0 3px rgba(90,63,36,.3);}
+  .bano-suds{position:absolute;inset:0;pointer-events:none;}
+  .sud{position:absolute;transform:translate(-50%,-50%);font-size:24px;animation:sudPop .7s ease-out forwards;}
+  @keyframes sudPop{0%{opacity:0;transform:translate(-50%,-50%) scale(.4);}30%{opacity:1;}
+    100%{opacity:0;transform:translate(-50%,-160%) scale(1.2);}}
 
   /* ---------- Mascota que camina por la ciudad ---------- */
   .mascota-ciudad{position:absolute;bottom:22%;transform:translateX(-50%);font-size:34px;z-index:18;
@@ -422,6 +451,7 @@
   .pet-think{position:absolute;bottom:96%;left:50%;transform:translateX(-50%);background:#fff;
     border-radius:12px;padding:1px 7px;font-size:15px;box-shadow:0 2px 0 rgba(0,0,0,.12);white-space:nowrap;
     animation:flota 1.4s ease-in-out infinite;}
+  .pet-acc-city{position:absolute;bottom:78%;left:50%;transform:translateX(-50%);font-size:20px;line-height:1;}
 
   /* ---------- Botón + modal de la misión (lista de compras) ---------- */
   .mision-btn{position:absolute;border:none;background:#fff;border-radius:14px;padding:7px 9px;
@@ -549,6 +579,17 @@
   ];
   // Cuánto baja cada cuidado POR MINUTO (la mascota se ensucia / tiene hambre sola)
   const DECAY = {limpieza:2.5, animo:3, salud:1.2, pelo:0.8};
+  // Accesorios que se desbloquean subiendo de nivel de felicidad
+  const ACCESORIOS = [
+    {id:"mono",  emoji:"🎀", nombre:"Moño",       lvl:1},
+    {id:"gorra", emoji:"🧢", nombre:"Gorrita",    lvl:2},
+    {id:"lentes",emoji:"🕶️", nombre:"Lentes",     lvl:3},
+    {id:"corona",emoji:"👑", nombre:"Corona",     lvl:4},
+    {id:"capa",  emoji:"🦸", nombre:"Súper capa",  lvl:5},
+  ];
+  const XP_POR_NIVEL = 40;                 // cada 40 puntos de cariño = 1 nivel
+  const nivelDe = xp => Math.floor((xp||0)/XP_POR_NIVEL);
+  const accEmoji = id => (ACCESORIOS.find(a=>a.id===id)||{}).emoji || "";
 
   /* =====================================================================
      ESTADO
@@ -728,7 +769,8 @@
     const necesita = pet0 ? mascotaNecesita(pet0) : null;
     const petCityHtml = pet0 ? `
       <div class="mascota-ciudad" id="petCity" style="left:${clamp(estado.avatarX-6,3,97)}%">
-        ${necesita?`<div class="pet-think">${necesita.emoji}</div>`:""}${pet0.emoji}
+        ${necesita?`<div class="pet-think">${necesita.emoji}</div>`:""}
+        ${pet0.accesorio?`<div class="pet-acc-city">${accEmoji(pet0.accesorio)}</div>`:""}${pet0.emoji}
       </div>` : "";
 
     $app().innerHTML = `
@@ -1262,7 +1304,8 @@
     const adoptaMsg = adoptados.length
       ? `<div class="globo" style="background:#e3fff0;border-color:#5ad0b0">
            🐾 ¡Adoptaste a <b>${adoptados.map(m=>m.emoji+" "+m.nombre).join(", ")}</b>!<br>
-           Llevalo a <b>🐾 Salud Animal</b> para bañarlo, cortarle el pelo y curarlo.</div>`
+           Llevalo a <b>🐾 Salud Animal</b> para bañarlo, cortarle el pelo y curarlo.<br>
+           <span style="opacity:.75;font-size:14px">Tip: tocá su nombre en la vet para cambiárselo ✏️</span></div>`
       : "";
     estado.scene="tienda";
     $app().innerHTML=`<div class="tienda-bg"></div>
@@ -1295,7 +1338,8 @@
       for(let i=0;i<c;i++){
         const nombre=NOMBRES_MASCOTA[Math.floor(Math.random()*NOMBRES_MASCOTA.length)];
         const m={ id:id, emoji:def.emoji, tipo:def.tipo, peludo:def.peludo, nombre,
-          limpieza:35, pelo:def.peludo?30:100, salud:50, animo:45 };
+          limpieza:35, pelo:def.peludo?30:100, salud:50, animo:45,
+          xp:0, accesorio:null, t:Date.now() };
         estado.mascotas.push(m); nuevos.push(m);
       }
     }
@@ -1350,6 +1394,9 @@
     } else {
       const m=estado.mascotas[estado.vetSel];
       const est=estadoMascota(m);
+      const nivel=nivelDe(m.xp);
+      const xpEnNivel=(m.xp||0)%XP_POR_NIVEL;
+      const xpPct=Math.round(xpEnNivel/XP_POR_NIVEL*100);
       const selector = estado.mascotas.length>1
         ? `<div class="vet-tabs">${estado.mascotas.map((p,i)=>
             `<button class="vtab ${i===estado.vetSel?"activa":""}" data-sel="${i}">${p.emoji} ${p.nombre}</button>`).join("")}</div>`
@@ -1364,26 +1411,39 @@
             <span class="vsn">${sv.nombre}</span>
             <span class="vsc">${etiqueta}</span></button>`;
       }).join("");
+      const accesorios = ACCESORIOS.map(a=>{
+        const desbloq=nivel>=a.lvl, eq=m.accesorio===a.id;
+        return `<button class="vet-acc ${eq?"eq":""} ${desbloq?"":"lock"}" data-acc="${a.id}" ${desbloq?"":"disabled"}>
+            <span class="vae">${desbloq?a.emoji:"🔒"}</span>
+            <span class="van">${desbloq?a.nombre:"Nivel "+a.lvl}</span></button>`;
+      }).join("");
 
       cuerpo=`
         ${selector}
         <div class="vet-room">
           <div class="vet-pet" id="vetPet">
             <div class="pet-emoji ${m.limpieza<50?"sucio":""} ${m.peludo&&m.pelo<50?"peludo":""}" id="petEmoji">${m.emoji}</div>
+            ${m.accesorio?`<div class="pet-acc-vet">${accEmoji(m.accesorio)}</div>`:""}
             <div class="pet-cara" id="petCara">${est.cara}</div>
             ${m.salud<50?`<div class="pet-bandage">🩹</div>`:""}
             <div class="vet-fx" id="vetFx"></div>
           </div>
           <div class="vet-mesa"></div>
-          <div class="pet-nombre">${m.emoji} <b>${m.nombre}</b> · ${est.txt}</div>
+          <div class="pet-nombre" id="petName">${m.emoji} <b>${m.nombre}</b> ✏️ · ${est.txt}</div>
         </div>
         <div class="panel">
           ${barra("Limpieza","🛁",Math.round(m.limpieza),"#34b3ff")}
           ${barra("Pelo","✂️",Math.round(m.pelo),"#a06bff")}
           ${barra("Salud","❤️",Math.round(m.salud),"#ff5d6c")}
           ${barra("Ánimo","😊",Math.round(m.animo),"#ffb300")}
+          <div class="vet-nivel">
+            <span class="vn-lbl">⭐ Nivel ${nivel}</span>
+            <div class="vs-bar"><div class="vs-fill" style="width:${xpPct}%;background:linear-gradient(90deg,#ffce00,#ff9d00)"></div></div>
+            <span class="vs-num">${xpEnNivel}/${XP_POR_NIVEL}</span></div>
           <div class="vet-servicios">${servicios}</div>
           ${est.ok?`<div class="globo" style="background:#e3fff0;border-color:#5ad0b0">🏆 ¡${m.nombre} está perfecto! Sos un genio cuidando mascotas.</div>`:""}
+          <div class="vet-acc-tit">🎀 Accesorios <span style="opacity:.6;font-weight:600">— cuidá a ${m.nombre} para subir de nivel</span></div>
+          <div class="vet-accs">${accesorios}</div>
         </div>`;
     }
 
@@ -1401,7 +1461,33 @@
     if(am2) am2.onclick=()=>{beep(400,.08);irA("mall");};
     $app().querySelectorAll("[data-sel]").forEach(b=>b.onclick=()=>{
       beep(550,.07); estado.vetSel=parseInt(b.dataset.sel,10); renderVet(); });
-    $app().querySelectorAll("[data-serv]").forEach(b=>b.onclick=()=>hacerServicio(b.dataset.serv));
+    $app().querySelectorAll("[data-serv]").forEach(b=>b.onclick=()=>{
+      const id=b.dataset.serv;
+      if(id==="banar") iniciarBano(); else hacerServicio(id);
+    });
+    $app().querySelectorAll("[data-acc]").forEach(b=>b.onclick=()=>equiparAccesorio(b.dataset.acc));
+    const pn=document.getElementById("petName");
+    if(pn) pn.onclick=()=>renombrarMascota();
+  }
+
+  function equiparAccesorio(accId){
+    const m=estado.mascotas[estado.vetSel]; if(!m) return;
+    const acc=ACCESORIOS.find(a=>a.id===accId);
+    if(!acc || nivelDe(m.xp)<acc.lvl){ sError(); return; }
+    m.accesorio = (m.accesorio===accId) ? null : accId;
+    beep(m.accesorio?720:420,.08); guardar(); renderVet();
+  }
+
+  // suma cariño (XP) y avisa si sube de nivel (desbloquea accesorio)
+  function sumarXP(m, pts){
+    const antes=nivelDe(m.xp);
+    m.xp=(m.xp||0)+pts;
+    const ahora=nivelDe(m.xp);
+    if(ahora>antes){
+      const nuevo=ACCESORIOS.find(a=>a.lvl===ahora);
+      sFiesta(); confetti();
+      setTimeout(()=>flash(`⭐ ¡${m.nombre} subió a nivel ${ahora}!${nuevo?` Desbloqueaste ${nuevo.emoji} ${nuevo.nombre}`:""}`),900);
+    }
   }
 
   function hacerServicio(servId){
@@ -1425,14 +1511,112 @@
     setTimeout(()=>{
       estado.vetOcupada=false;
       sFiesta();
+      sumarXP(m, 10);                 // cada cuidado da cariño
       const todoOk=estadoMascota(m).ok;
-      if(todoOk){ confetti(); estado.monedas++; estado.efectivo+=5; }
+      if(todoOk){ confetti(); estado.monedas++; estado.efectivo+=5; sumarXP(m, 20); }
       guardar();
       renderVet();
-      // mensajito de resultado
       flash(`✅ ${m.nombre} quedó ${sv.efecto}`);
       if(todoOk) setTimeout(()=>flash(`🏆 ¡${m.nombre} está perfecto! +1 🪙`),1200);
     }, 1500);
+  }
+
+  /* ---------- Ponerle / cambiarle el nombre a la mascota ---------- */
+  function renombrarMascota(){
+    const m=estado.mascotas[estado.vetSel]; if(!m) return;
+    beep(600,.08);
+    const ov=document.createElement("div"); ov.className="modal"; ov.id="modalNombre";
+    ov.innerHTML=`<div class="modal-card" style="text-align:center">
+      <div style="font-size:54px">${m.emoji}</div>
+      <div class="titulo">¿Cómo se llama?</div>
+      <input id="inpNombre" maxlength="12" value="${m.nombre}" placeholder="Nombre de la mascota"
+        style="font-family:inherit;font-size:20px;padding:12px 14px;border-radius:14px;border:2px solid #cdd8ea;width:100%;text-align:center" />
+      <button class="btn verde" id="okNombre" style="margin-top:12px">✅ ¡Listo!</button>
+    </div>`;
+    document.body.appendChild(ov);
+    const inp=document.getElementById("inpNombre");
+    if(inp){ inp.focus(); try{inp.select();}catch(e){} }
+    function confirmar(){
+      const v=(inp.value||"").trim();
+      if(v) m.nombre=v;
+      sOk(); guardar(); ov.remove(); renderVet();
+    }
+    document.getElementById("okNombre").onclick=confirmar;
+    inp.addEventListener("keydown",e=>{ if(e.key==="Enter") confirmar(); });
+    ov.addEventListener("click",e=>{ if(e.target===ov){ ov.remove(); renderVet(); } });
+  }
+
+  /* ---------- Mini-juego de baño: ¡frotá para limpiar! ---------- */
+  function iniciarBano(){
+    if(estado.vetOcupada) return;
+    const m=estado.mascotas[estado.vetSel]; if(!m) return;
+    const sv=SERVICIOS_VET.find(s=>s.id==="banar");
+    if(m.limpieza>=99){ return; }
+    if(estado.efectivo<sv.costo){ sError(); flash(`El baño cuesta ${plata(sv.costo)} y no te alcanza 😅. ¡Pasá por el cajero! 🏧`); return; }
+    beep(520,.08);
+
+    let prog=0, activo=false, listo=false;
+    const ov=document.createElement("div"); ov.className="modal"; ov.id="modalBano";
+    ov.innerHTML=`<div class="modal-card" style="text-align:center">
+      <div class="titulo">🛁 ¡A bañar a ${m.nombre}!</div>
+      <p style="margin:0 0 8px;opacity:.75">Frotá con el dedo (o el mouse) sobre la mascota 🧼</p>
+      <div class="bano-tina" id="banoTina">
+        <div class="bano-pet ${m.peludo&&m.pelo<50?"peludo":""}" id="banoPet">${m.emoji}</div>
+        <div class="mugre" style="left:24%;top:30%"></div>
+        <div class="mugre" style="left:60%;top:26%"></div>
+        <div class="mugre" style="left:38%;top:58%"></div>
+        <div class="mugre" style="left:66%;top:60%"></div>
+        <div class="bano-suds" id="banoSuds"></div>
+      </div>
+      <div class="vs-bar" style="height:20px;margin-top:12px"><div class="vs-fill" id="banoFill" style="width:0%;background:#34b3ff"></div></div>
+      <div id="banoTxt" style="font-weight:800;margin-top:6px">0%</div>
+      <button class="btn gris" id="banoCerrar" style="margin-top:10px">Cancelar</button>
+    </div>`;
+    document.body.appendChild(ov);
+    const tina=document.getElementById("banoTina");
+    const fill=document.getElementById("banoFill");
+    const txt=document.getElementById("banoTxt");
+    const suds=document.getElementById("banoSuds");
+    const pet=document.getElementById("banoPet");
+    const mugres=[...ov.querySelectorAll(".mugre")];
+
+    function frotar(clientX, clientY){
+      if(listo) return;
+      prog=Math.min(100, prog+4);
+      fill.style.width=prog+"%"; txt.textContent=Math.round(prog)+"%";
+      pet.classList.add("tiembla2");
+      // burbujita donde froto
+      const r=tina.getBoundingClientRect();
+      const b=document.createElement("div"); b.className="sud";
+      b.textContent=["🫧","💧","🫧"][Math.floor(Math.random()*3)];
+      b.style.left=clamp((clientX-r.left)/r.width*100,0,100)+"%";
+      b.style.top=clamp((clientY-r.top)/r.height*100,0,100)+"%";
+      suds.appendChild(b); setTimeout(()=>b.remove(),700);
+      if(Math.random()<.3) sTecla();
+      // se van limpiando las manchas
+      const idx=Math.floor(prog/25); for(let i=0;i<idx&&i<mugres.length;i++) mugres[i].style.opacity="0";
+      if(prog>=100) terminar();
+    }
+    function terminar(){
+      listo=true;
+      estado.efectivo-=sv.costo; m.limpieza=100;
+      sFiesta(); confetti(); sumarXP(m,10);
+      const todoOk=estadoMascota(m).ok;
+      if(todoOk){ estado.monedas++; estado.efectivo+=5; sumarXP(m,20); }
+      mugres.forEach(x=>x.style.opacity="0"); pet.classList.add("brilla2");
+      txt.textContent="¡Limpio! ✨";
+      guardar();
+      setTimeout(()=>{ ov.remove(); renderVet(); flash(`✅ ${m.nombre} quedó bañado y brillante ✨`);
+        if(todoOk) setTimeout(()=>flash(`🏆 ¡${m.nombre} está perfecto! +1 🪙`),1200); }, 700);
+    }
+    // mouse
+    tina.addEventListener("mousedown",e=>{activo=true;frotar(e.clientX,e.clientY);});
+    ov.addEventListener("mouseup",()=>{activo=false;});
+    tina.addEventListener("mousemove",e=>{ if(activo) frotar(e.clientX,e.clientY); });
+    // touch
+    tina.addEventListener("touchstart",e=>{const t=e.touches[0];if(t)frotar(t.clientX,t.clientY);},{passive:true});
+    tina.addEventListener("touchmove",e=>{const t=e.touches[0];if(t)frotar(t.clientX,t.clientY);e.preventDefault&&e.preventDefault();},{passive:false});
+    document.getElementById("banoCerrar").onclick=()=>{ if(!listo){ beep(400,.08); ov.remove(); renderVet(); } };
   }
 
   function lanzarFx(fx, servId){
