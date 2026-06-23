@@ -49,51 +49,24 @@
     cursor:pointer;z-index:40;}
 
   /* =====================================================================
-     PERSONAJE PRO (dibujado con CSS, camina de verdad)
+     PERSONAJE PRO (ilustrado en SVG, estilo Avatar World, camina de verdad)
      ===================================================================== */
-  .person{position:relative;width:calc(42px*var(--s));height:calc(74px*var(--s));
-    display:inline-block;vertical-align:bottom;}
-  .person::after{content:"";position:absolute;bottom:calc(-4px*var(--s));left:50%;
-    transform:translateX(-50%);width:calc(34px*var(--s));height:calc(8px*var(--s));
-    background:rgba(0,0,0,.18);border-radius:50%;filter:blur(1px);z-index:0;}
-  .person .p-head{position:absolute;top:0;left:50%;transform:translateX(-50%);
-    width:calc(27px*var(--s));height:calc(27px*var(--s));border-radius:50%;
-    background:var(--skin);z-index:3;box-shadow:inset calc(-3px*var(--s)) calc(-2px*var(--s)) rgba(0,0,0,.12);}
-  .person .p-hair{position:absolute;top:calc(-5px*var(--s));left:calc(-3px*var(--s));
-    right:calc(-3px*var(--s));height:calc(15px*var(--s));background:var(--pelo);
-    border-radius:50% 50% 45% 45%;}
-  .person .p-eye{position:absolute;top:52%;width:calc(3.4px*var(--s));height:calc(4.4px*var(--s));
-    background:#27313f;border-radius:50%;z-index:4;}
-  .person .p-eye.l{left:30%;} .person .p-eye.r{right:30%;}
-  .person .p-smile{position:absolute;bottom:16%;left:50%;transform:translateX(-50%);
-    width:42%;height:24%;border:calc(2.2px*var(--s)) solid #c0473b;border-top:none;
-    border-radius:0 0 60px 60px;}
-  .person .p-acc{position:absolute;top:calc(-13px*var(--s));left:50%;transform:translateX(-50%);
-    font-size:calc(19px*var(--s));z-index:5;line-height:1;}
-  .person .p-body{position:absolute;top:calc(23px*var(--s));left:50%;transform:translateX(-50%);
-    width:calc(31px*var(--s));height:calc(31px*var(--s));background:var(--ropa);
-    border-radius:14px 14px 9px 9px;z-index:2;
-    box-shadow:inset calc(-4px*var(--s)) 0 rgba(0,0,0,.1);}
-  .person .p-arm{position:absolute;top:calc(25px*var(--s));width:calc(8px*var(--s));
-    height:calc(25px*var(--s));background:var(--ropa);border-radius:7px;z-index:1;}
-  .person .p-arm.l{left:calc(50% - 20px*var(--s));transform-origin:top center;}
-  .person .p-arm.r{right:calc(50% - 20px*var(--s));transform-origin:top center;}
-  .person .p-leg{position:absolute;bottom:0;width:calc(10px*var(--s));height:calc(24px*var(--s));
-    background:var(--pant);border-radius:6px 6px 5px 5px;z-index:1;}
-  .person .p-leg.l{left:calc(50% - 11px*var(--s));transform-origin:top center;}
-  .person .p-leg.r{right:calc(50% - 11px*var(--s));transform-origin:top center;}
+  .person{display:inline-block;vertical-align:bottom;overflow:visible;line-height:0;}
+  .person .a-leg,.person .a-arm{transform-box:fill-box;transform-origin:50% 6%;}
+  .person .p-headg{transform-box:fill-box;transform-origin:50% 100%;}
+  @keyframes swingA{0%,100%{transform:rotate(17deg);}50%{transform:rotate(-17deg);}}
+  @keyframes swingB{0%,100%{transform:rotate(-17deg);}50%{transform:rotate(17deg);}}
+  .person.walk .a-arm-l,.person.walk .a-leg-r{animation:swingA .42s ease-in-out infinite;}
+  .person.walk .a-arm-r,.person.walk .a-leg-l{animation:swingB .42s ease-in-out infinite;}
+  .person.walk .p-bodyg{animation:bodyBob .42s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 100%;}
+  @keyframes bodyBob{0%,100%{transform:translateY(0);}50%{transform:translateY(-2.5px);}}
+  @keyframes headBob{0%,100%{transform:rotate(-2.2deg);}50%{transform:rotate(2.2deg);}}
+  .person:not(.walk) .p-headg{animation:headBob 2.8s ease-in-out infinite;}
+  @keyframes blink{0%,94%,100%{transform:scaleY(1);}97%{transform:scaleY(.1);}}
+  .person .p-eyes{transform-box:fill-box;transform-origin:50% 50%;animation:blink 4.6s ease-in-out infinite;}
   .person.izq{transform:scaleX(-1);}
-
-  @keyframes swingA{0%,100%{transform:rotate(20deg);}50%{transform:rotate(-20deg);}}
-  @keyframes swingB{0%,100%{transform:rotate(-20deg);}50%{transform:rotate(20deg);}}
-  .person.walk .p-arm.l,.person.walk .p-leg.r{animation:swingA .42s ease-in-out infinite;}
-  .person.walk .p-arm.r,.person.walk .p-leg.l{animation:swingB .42s ease-in-out infinite;}
-  @keyframes respira{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(-2px);}}
-  .person:not(.walk) .p-head{animation:respira 2.4s ease-in-out infinite;}
-  /* sentado (food court) */
-  .person.sit .p-leg.l{transform:rotate(78deg);}
-  .person.sit .p-leg.r{transform:rotate(78deg);}
-  .person.sit{height:calc(58px*var(--s));}
+  /* sentado (food court): piernas hacia adelante */
+  .person.sit .a-leg{transform:rotate(82deg);}
 
   /* =====================================================================
      AUTO PRO (dibujado con CSS, más grande)
@@ -177,9 +150,17 @@
   .deco.fija{cursor:default;}
   .auto-cap{position:absolute;animation:cruza linear infinite;z-index:6;}
   @keyframes cruza{from{left:-160px;}to{left:108%;}}
-  .moneda{position:absolute;transform:translateX(-50%);font-size:30px;cursor:pointer;z-index:15;
-    animation:brilla 1s ease-in-out infinite;filter:drop-shadow(0 0 5px gold);}
+  .moneda{position:absolute;transform:translateX(-50%);cursor:pointer;z-index:15;
+    animation:brilla 1s ease-in-out infinite;}
   @keyframes brilla{0%,100%{transform:translateX(-50%) translateY(0) scale(1);}50%{transform:translateX(-50%) translateY(-6px) scale(1.12);}}
+  /* moneda dorada de verdad */
+  .coin{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;
+    font-weight:900;color:#9a6800;vertical-align:middle;
+    background:radial-gradient(circle at 35% 28%,#fff6c0,#ffd84d 42%,#f0b000 70%,#bd7d00);
+    box-shadow:0 0 7px rgba(255,200,40,.8), inset 0 -3px 4px rgba(140,90,0,.55), inset 0 2px 4px rgba(255,255,255,.7);
+    border:2px solid #e0a400;text-shadow:0 1px 0 rgba(255,255,255,.4);}
+  @keyframes giraCoin{0%{transform:rotateY(0);}50%{transform:rotateY(180deg);}100%{transform:rotateY(360deg);}}
+  .moneda .coin{animation:giraCoin 2.6s linear infinite;}
 
   .npc{position:absolute;bottom:24%;transform:translateX(-50%);z-index:14;}
   .avatar{position:absolute;bottom:24%;transform:translateX(-50%);z-index:20;
@@ -488,6 +469,7 @@
     intentosClave: 4,
     montosRapidos: [50, 100, 200, 500],
     moneda: "$",
+    valorMoneda: 5,          // cada 🪙 dorada vale $5 (¡las monedas son plata!)
     sonido: true,
   };
 
@@ -496,16 +478,16 @@
 
   // Personajes PRO (dibujados con CSS). Editá colores o agregá más.
   const AVATARES = [
-    {n:"Mateo", skin:"#f1c27d", pelo:"#3b2a1e", ropa:"#2a6df4", pant:"#243352"},
-    {n:"Sofía", skin:"#ffd9b3", pelo:"#6b3d1b", ropa:"#ff5d8f", pant:"#7a3b6a", acc:"🎀"},
-    {n:"Liam",  skin:"#8d5524", pelo:"#14110d", ropa:"#25b85f", pant:"#185a36"},
-    {n:"Mía",   skin:"#e8b88a", pelo:"#101010", ropa:"#ffb300", pant:"#7a5500", acc:"👑"},
-    {n:"Noah",  skin:"#c68642", pelo:"#241608", ropa:"#e8453c", pant:"#5a1f1a", acc:"🧢"},
-    {n:"Emma",  skin:"#ffe3c2", pelo:"#c9a24a", ropa:"#9b59ff", pant:"#5a2f8a"},
-    {n:"Galo",  skin:"#f1c27d", pelo:"#141414", ropa:"#00b3a4", pant:"#0a5a54", acc:"🎧"},
-    {n:"Luna",  skin:"#a9694a", pelo:"#0a0a0a", ropa:"#ff7a18", pant:"#7a3a0a", acc:"👒"},
-    {n:"Bruno", skin:"#ffdbac", pelo:"#7a4a1a", ropa:"#3a3f47", pant:"#1f2227", acc:"🎩"},
-    {n:"Iris",  skin:"#e0ac69", pelo:"#b03a8a", ropa:"#00a3ff", pant:"#0a5a8a"},
+    {n:"Mateo", skin:"#f1c27d", pelo:"#3b2a1e", ropa:"#2a6df4", pant:"#243352", peinado:"corto"},
+    {n:"Sofía", skin:"#ffd9b3", pelo:"#6b3d1b", ropa:"#ff5d8f", pant:"#7a3b6a", peinado:"colita", acc:"🎀"},
+    {n:"Liam",  skin:"#8d5524", pelo:"#14110d", ropa:"#25b85f", pant:"#185a36", peinado:"rulos"},
+    {n:"Mía",   skin:"#e8b88a", pelo:"#101010", ropa:"#ffb300", pant:"#7a5500", peinado:"largo", acc:"👑"},
+    {n:"Noah",  skin:"#c68642", pelo:"#241608", ropa:"#e8453c", pant:"#5a1f1a", peinado:"corto", acc:"🧢"},
+    {n:"Emma",  skin:"#ffe3c2", pelo:"#c9a24a", ropa:"#9b59ff", pant:"#5a2f8a", peinado:"flequillo"},
+    {n:"Galo",  skin:"#f1c27d", pelo:"#141414", ropa:"#00b3a4", pant:"#0a5a54", peinado:"corto", acc:"🎧"},
+    {n:"Luna",  skin:"#a9694a", pelo:"#0a0a0a", ropa:"#ff7a18", pant:"#7a3a0a", peinado:"bun", acc:"👒"},
+    {n:"Bruno", skin:"#ffdbac", pelo:"#7a4a1a", ropa:"#3a3f47", pant:"#1f2227", peinado:"corto", acc:"🎩"},
+    {n:"Iris",  skin:"#e0ac69", pelo:"#b03a8a", ropa:"#00a3ff", pant:"#0a5a8a", peinado:"largo"},
   ];
 
   // Locales del centro comercial (cada "tienda" crea su catálogo solo)
@@ -590,6 +572,8 @@
   const XP_POR_NIVEL = 40;                 // cada 40 puntos de cariño = 1 nivel
   const nivelDe = xp => Math.floor((xp||0)/XP_POR_NIVEL);
   const accEmoji = id => (ACCESORIOS.find(a=>a.id===id)||{}).emoji || "";
+  // Moneda dorada dibujada (en vez del emoji 🪙)
+  const coinHTML = (px) => `<span class="coin" style="width:${px}px;height:${px}px;font-size:${Math.round(px*0.5)}px">$</span>`;
 
   /* =====================================================================
      ESTADO
@@ -614,6 +598,8 @@
   const plata = n => CONFIG.moneda + n;
   const avAct = () => AVATARES[estado.avatar] || AVATARES[0];
   const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+  // ganar monedas doradas: ¡son plata! cada una suma a la billetera
+  function ganarMonedas(n){ estado.monedas+=n; estado.efectivo+=n*CONFIG.valorMoneda; }
 
   function guardar(){ try{ localStorage.setItem("ciudadJuego", JSON.stringify({
     avatar:estado.avatar,nombre:estado.nombre,saldoBanco:estado.saldoBanco,
@@ -642,18 +628,68 @@
   const sPaso=()=>beep(300,.04,"triangle",.05);
   const sFiesta=()=>{[523,659,784,1047,1319].forEach((f,i)=>setTimeout(()=>beep(f,.15),i*90));};
 
-  /* ---------- Personaje PRO ---------- */
+  /* ---------- Personaje PRO (ilustración SVG) ---------- */
+  // peinados: capas de pelo que se dibujan sobre la cabeza
+  function peinadoSVG(p){
+    const c="var(--pelo)";
+    switch(p){
+      case "flequillo": // cerquillo recto
+        return `<path d="M19,50 a31,31 0 0,1 62,0 q-4,-20 -31,-20 q-27,0 -31,20Z" fill="${c}"/>
+                <path d="M22,46 q9,12 14,3 q5,11 14,3 q9,10 14,-3 q5,8 14,-2 q-3,-22 -35,-22 q-30,0 -35,20Z" fill="${c}"/>`;
+      case "colita": // con colita de costado
+        return `<path d="M19,52 a31,31 0 0,1 62,0 q-6,-26 -31,-26 q-25,0 -31,26Z" fill="${c}"/>
+                <circle cx="83" cy="40" r="10" fill="${c}"/><circle cx="88" cy="52" r="7" fill="${c}"/>`;
+      case "bun": // rodete arriba
+        return `<path d="M19,52 a31,31 0 0,1 62,0 q-6,-26 -31,-26 q-25,0 -31,26Z" fill="${c}"/>
+                <circle cx="50" cy="15" r="10" fill="${c}"/>`;
+      case "largo": // pelo largo a los costados
+        return `<path d="M17,54 a33,33 0 0,1 66,0 q-6,-30 -33,-30 q-27,0 -33,30Z" fill="${c}"/>
+                <path d="M17,52 q-3,30 6,40 l8,-3 q-7,-18 -5,-37Z" fill="${c}"/>
+                <path d="M83,52 q3,30 -6,40 l-8,-3 q7,-18 5,-37Z" fill="${c}"/>`;
+      case "rulos": // rulos
+        return `<path d="M20,52 a30,30 0 0,1 60,0 q-6,-24 -30,-24 q-24,0 -30,24Z" fill="${c}"/>
+                <circle cx="26" cy="34" r="8" fill="${c}"/><circle cx="40" cy="25" r="9" fill="${c}"/>
+                <circle cx="55" cy="23" r="9" fill="${c}"/><circle cx="70" cy="30" r="8" fill="${c}"/>`;
+      default: // corto
+        return `<path d="M19,52 a31,31 0 0,1 62,0 q-6,-27 -31,-27 q-25,0 -31,27Z" fill="${c}"/>`;
+    }
+  }
   function personHTML(av, s, cls, id){
-    const acc = av.acc ? `<div class="p-acc">${av.acc}</div>` : "";
-    return `<div class="person ${cls||""}" ${id?`id="${id}"`:""}
-      style="--s:${s};--skin:${av.skin};--pelo:${av.pelo};--ropa:${av.ropa};--pant:${av.pant}">
-      <div class="p-arm l"></div><div class="p-arm r"></div>
-      <div class="p-leg l"></div><div class="p-leg r"></div>
-      <div class="p-body"></div>
-      <div class="p-head"><div class="p-hair"></div>
-        <div class="p-eye l"></div><div class="p-eye r"></div><div class="p-smile"></div></div>
-      ${acc}
-    </div>`;
+    const W=Math.round(48*s), H=Math.round(80*s);
+    const acc = av.acc ? `<text class="p-acc" x="50" y="20" text-anchor="middle" font-size="26">${av.acc}</text>` : "";
+    return `<svg class="person ${cls||""}" ${id?`id="${id}"`:""} width="${W}" height="${H}" viewBox="0 0 100 170"
+      style="--skin:${av.skin};--pelo:${av.pelo};--ropa:${av.ropa};--pant:${av.pant}" aria-hidden="true">
+      <ellipse cx="50" cy="166" rx="26" ry="5" fill="rgba(0,0,0,.18)"/>
+      <g class="a-leg a-leg-l"><rect x="38" y="120" width="11" height="38" rx="5.5" fill="var(--pant)"/>
+        <rect x="34" y="150" width="17" height="11" rx="5" fill="#37404f"/></g>
+      <g class="a-leg a-leg-r"><rect x="51" y="120" width="11" height="38" rx="5.5" fill="var(--pant)"/>
+        <rect x="49" y="150" width="17" height="11" rx="5" fill="#37404f"/></g>
+      <g class="a-arm a-arm-l"><rect x="21" y="86" width="11" height="34" rx="5.5" fill="var(--ropa)"/>
+        <circle cx="26.5" cy="120" r="6" fill="var(--skin)"/></g>
+      <g class="a-arm a-arm-r"><rect x="68" y="86" width="11" height="34" rx="5.5" fill="var(--ropa)"/>
+        <circle cx="73.5" cy="120" r="6" fill="var(--skin)"/></g>
+      <g class="p-bodyg">
+        <path d="M33,86 q17,-9 34,0 l4,34 q-21,9 -42,0Z" fill="var(--ropa)"/>
+        <path d="M33,86 q17,-9 34,0 l1.5,12 q-18,-7 -37,0Z" fill="rgba(255,255,255,.18)"/>
+      </g>
+      <g class="p-headg">
+        <circle cx="22" cy="58" r="6" fill="var(--skin)"/><circle cx="78" cy="58" r="6" fill="var(--skin)"/>
+        <circle cx="50" cy="53" r="31" fill="var(--skin)"/>
+        <path d="M50,53 m0,-31 a31,31 0 0,1 0,62Z" fill="rgba(0,0,0,.06)"/>
+        ${peinadoSVG(av.peinado)}
+        <g class="p-eyes">
+          <ellipse cx="39" cy="55" rx="5" ry="6.4" fill="#fff"/><circle cx="40" cy="56.5" r="3.9" fill="#2b2533"/>
+          <circle cx="41.6" cy="54.6" r="1.5" fill="#fff"/>
+          <ellipse cx="61" cy="55" rx="5" ry="6.4" fill="#fff"/><circle cx="60" cy="56.5" r="3.9" fill="#2b2533"/>
+          <circle cx="61.6" cy="54.6" r="1.5" fill="#fff"/>
+        </g>
+        <path d="M33,45 q6,-3.5 12,-0.5" stroke="var(--pelo)" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <path d="M55,44.5 q6,-3 12,0.5" stroke="var(--pelo)" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <circle cx="31" cy="64" r="4.2" fill="#ff8fa3" opacity=".5"/><circle cx="69" cy="64" r="4.2" fill="#ff8fa3" opacity=".5"/>
+        <path d="M43,67 q7,7 14,0" stroke="#bd4436" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+        ${acc}
+      </g>
+    </svg>`;
   }
   function carHTML(color, scale){
     return `<div class="car" style="--c:${color};--cs:${scale||1}">
@@ -668,7 +704,7 @@
     <div class="hud">
       <div class="chip banco"><div class="et">🏦 Banco</div><div class="mo">${plata(estado.saldoBanco)}</div></div>
       <div class="chip efe"><div class="et">👛 Efectivo</div><div class="mo">${plata(estado.efectivo)}</div></div>
-      <div class="chip mon"><div class="et">🪙 Monedas</div><div class="mo">${estado.monedas}</div></div>
+      <div class="chip mon"><div class="et">Monedas</div><div class="mo">${coinHTML(16)} ${estado.monedas}</div></div>
     </div>`; }
 
   /* ---------- Router ---------- */
@@ -759,7 +795,7 @@
     }).join("");
 
     const monHtml = MONEDAS.filter(m=>!estado.monedasJuntadas.includes(m.id))
-      .map(m=>`<div class="moneda" data-moneda="${m.id}" data-x="${m.x}" style="left:${m.x}%;bottom:25%">🪙</div>`).join("");
+      .map(m=>`<div class="moneda" data-moneda="${m.id}" data-x="${m.x}" style="left:${m.x}%;bottom:25%">${coinHTML(30)}</div>`).join("");
 
     const npcHtml = NPC_CIUDAD.map((n,i)=>
       `<div class="npc" data-saluda="${i}" style="left:${n.x}%">${personHTML(AVATARES[n.a],0.78)}</div>`).join("");
@@ -843,8 +879,8 @@
     $app().querySelectorAll("[data-moneda]").forEach(m=>{
       m.onclick=()=>{ const id=m.dataset.moneda, dx=parseFloat(m.dataset.x);
         caminarA(dx, ()=>{ sMoneda(); estado.monedasJuntadas.push(id);
-          estado.monedas++; estado.efectivo+=5;
-          m.remove(); actualizarHud(); burbuja("+ $5 🪙"); }); };
+          ganarMonedas(1);
+          m.remove(); actualizarHud(); burbuja(`+ ${plata(CONFIG.valorMoneda)} 🪙`); }); };
     });
     $app().querySelectorAll("[data-saluda]").forEach(n=>{
       n.onclick=()=>{ beep(700,.08); const npc=NPC_CIUDAD[parseInt(n.dataset.saluda,10)];
@@ -1291,16 +1327,20 @@
     let misionMsg="";
     if(misionCumplida){
       const dentro = estado.mision.gastado<=estado.mision.presupuesto;
-      estado.efectivo+=30; estado.monedas+=3;
+      estado.efectivo+=30; ganarMonedas(3);
       misionMsg=`<div class="globo" style="background:#fff3c4;border-color:#ffce00">
         📋 ¡Lista de compras completa! ${dentro?"Y no te pasaste del presupuesto 👏":""}<br>
-        Premio: <b>+$30</b> y <b>+3 🪙</b> 🎉</div>`;
+        Premio: <b>+$30</b> y <b>+3 🪙</b> (las monedas también son plata 💰) 🎉</div>`;
       nuevaMision(); // arrancá una lista nueva
     }
     estado.carrito={};
-    const vueltoMsg = pg
-      ? `<div class="globo">✅ ¡Vuelto correcto!<br>Pagaste con ${plata(pg.pagaCon)} y te dieron <b>${plata(pg.correcto)}</b> de vuelto 💵</div>`
-      : "";
+    // Premio por calcular bien el vuelto: monedas doradas (que son plata)
+    let vueltoMsg="";
+    if(pg){
+      const premio=2; ganarMonedas(premio);
+      vueltoMsg=`<div class="globo">✅ ¡Vuelto correcto!<br>Pagaste con ${plata(pg.pagaCon)} y te dieron <b>${plata(pg.correcto)}</b> de vuelto 💵<br>
+        🎁 Premio por calcularlo: <b>+${premio} 🪙</b> = <b>${plata(premio*CONFIG.valorMoneda)}</b> a tu billetera</div>`;
+    }
     const adoptaMsg = adoptados.length
       ? `<div class="globo" style="background:#e3fff0;border-color:#5ad0b0">
            🐾 ¡Adoptaste a <b>${adoptados.map(m=>m.emoji+" "+m.nombre).join(", ")}</b>!<br>
@@ -1513,7 +1553,7 @@
       sFiesta();
       sumarXP(m, 10);                 // cada cuidado da cariño
       const todoOk=estadoMascota(m).ok;
-      if(todoOk){ confetti(); estado.monedas++; estado.efectivo+=5; sumarXP(m, 20); }
+      if(todoOk){ confetti(); ganarMonedas(1); sumarXP(m, 20); }
       guardar();
       renderVet();
       flash(`✅ ${m.nombre} quedó ${sv.efecto}`);
@@ -1602,7 +1642,7 @@
       estado.efectivo-=sv.costo; m.limpieza=100;
       sFiesta(); confetti(); sumarXP(m,10);
       const todoOk=estadoMascota(m).ok;
-      if(todoOk){ estado.monedas++; estado.efectivo+=5; sumarXP(m,20); }
+      if(todoOk){ ganarMonedas(1); sumarXP(m,20); }
       mugres.forEach(x=>x.style.opacity="0"); pet.classList.add("brilla2");
       txt.textContent="¡Limpio! ✨";
       guardar();

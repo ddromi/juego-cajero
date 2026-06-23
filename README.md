@@ -12,8 +12,12 @@ Funciona en el navegador de la **computadora o el celular**. No necesita interne
 
 ## ✨ Novedades de esta versión
 
-- **Personajes "pro"** dibujados con CSS (no emojis): piel, pelo, ropa,
-  accesorios y **animación de caminata** real. 10 para elegir.
+- **Personajes ilustrados en SVG** (estilo "Avatar World"): cara con ojos con
+  brillo y parpadeo, peinados distintos (corto, flequillo, colita, rodete,
+  rulos, largo), ropa, manos, zapatos y **caminata** real. 10 para elegir.
+- **Monedas doradas de verdad** (con brillo y giro). Las monedas **son plata**:
+  cada 🪙 vale $5 y va a tu billetera. Si **calculás bien el vuelto, ganás
+  monedas** (¡que son dinero!).
 - **Autos más grandes** y mejor dibujados circulando por la calle.
 - **Centro comercial recorrible**: caminás por adentro con ◀️ ▶️ o tocando el
   piso, pasás por **8 locales** con vidriera, **escalera mecánica**, segundo
