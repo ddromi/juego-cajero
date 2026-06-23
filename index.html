@@ -365,6 +365,55 @@
   .ov.mal{background:#ffe1de;border-color:var(--rojo);animation:shake .3s;}
   .ov.bien{background:#d8f8e4;border-color:var(--verde);}
 
+  /* ---------- Veterinaria / Salud Animal ---------- */
+  .vet-bg{position:absolute;inset:0;background:linear-gradient(160deg,#d6fff2,#eafff8 55%,#e8f4ff);}
+  .vet-tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:4px;}
+  .vtab{flex:0 0 auto;border:none;border-radius:999px;padding:9px 14px;font-size:14px;font-weight:800;
+    font-family:inherit;background:#fff;color:var(--texto);box-shadow:0 3px 0 rgba(0,0,0,.08);cursor:pointer;}
+  .vtab.activa{background:#2bbf9a;color:#fff;}
+  .vet-room{position:relative;height:200px;border-radius:18px;margin:4px 0 12px;overflow:hidden;
+    background:linear-gradient(#eafaff 0%,#dff3ff 62%,#bfe3d8 62%,#a9d8cb 100%);
+    box-shadow:inset 0 0 22px rgba(0,90,120,.12);}
+  .vet-room::before{content:"🧴 🧼 🧻 💊 🩺";position:absolute;top:8px;left:10px;font-size:18px;opacity:.7;letter-spacing:6px;}
+  .vet-room::after{content:"🐾";position:absolute;top:8px;right:12px;font-size:22px;opacity:.5;}
+  .vet-mesa{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:78%;height:42px;
+    background:linear-gradient(#dfe8ef,#b9c6d2);border-radius:12px 12px 0 0;border:3px solid #fff;
+    box-shadow:0 -3px 0 rgba(0,0,0,.06);}
+  .vet-pet{position:absolute;bottom:34px;left:50%;transform:translateX(-50%);text-align:center;z-index:2;}
+  .pet-emoji{font-size:90px;line-height:1;filter:drop-shadow(0 6px 6px rgba(0,0,0,.25));
+    transition:filter .3s;animation:petIdle 2.6s ease-in-out infinite;}
+  @keyframes petIdle{0%,100%{transform:translateY(0) rotate(-1deg);}50%{transform:translateY(-6px) rotate(1deg);}}
+  .pet-emoji.sucio{filter:drop-shadow(0 6px 6px rgba(0,0,0,.25)) sepia(.6) brightness(.85) contrast(1.05);}
+  .pet-emoji.peludo{filter:drop-shadow(0 6px 6px rgba(0,0,0,.25)) blur(.4px) contrast(.95);transform:scale(1.06);}
+  .pet-emoji.trabajando{animation:petJump .5s ease-in-out 2;}
+  @keyframes petJump{0%,100%{transform:translateY(0) scale(1);}50%{transform:translateY(-16px) scale(1.08);}}
+  .pet-cara{position:absolute;top:-6px;right:-14px;font-size:30px;}
+  .pet-bandage{position:absolute;top:24px;left:-12px;font-size:26px;transform:rotate(-18deg);}
+  .pet-nombre{position:absolute;bottom:6px;left:0;right:0;text-align:center;font-size:14px;
+    color:#0d4a3e;z-index:3;text-shadow:0 1px 2px #fff;}
+  .vet-fx{position:absolute;inset:-40px 0 0 0;pointer-events:none;z-index:4;}
+  .fxitem{position:absolute;bottom:40px;font-size:30px;opacity:0;}
+  .fx-sube{animation:fxSube 1.3s ease-out forwards;}
+  @keyframes fxSube{0%{opacity:0;transform:translateY(10px) scale(.6);}
+    20%{opacity:1;}100%{opacity:0;transform:translateY(-120px) scale(1.2) rotate(20deg);}}
+  .fx-corte{animation:fxCorte 1.2s ease-in-out forwards;}
+  @keyframes fxCorte{0%{opacity:0;transform:translateX(-30px) scale(.7);}
+    25%{opacity:1;}60%{transform:translateX(30px) scale(1.1);}100%{opacity:0;transform:translateX(60px) scale(.8);}}
+  .vet-stat{display:flex;align-items:center;gap:8px;margin:7px 0;font-size:13px;font-weight:700;}
+  .vet-stat .vs-lbl{flex:0 0 96px;}
+  .vet-stat .vs-bar{flex:1;height:16px;background:#e7edf5;border-radius:9px;overflow:hidden;
+    box-shadow:inset 0 1px 3px rgba(0,0,0,.15);}
+  .vet-stat .vs-fill{height:100%;border-radius:9px;transition:width .5s ease;}
+  .vet-stat .vs-num{flex:0 0 40px;text-align:right;}
+  .vet-servicios{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px;}
+  .vet-serv{border:none;border-radius:16px;padding:12px 6px;font-family:inherit;cursor:pointer;
+    background:#fff;box-shadow:0 5px 0 rgba(0,0,0,.1);display:flex;flex-direction:column;align-items:center;gap:2px;
+    border:3px solid #d3ece4;}
+  .vet-serv:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.1);}
+  .vet-serv .vse{font-size:30px;} .vet-serv .vsn{font-weight:800;font-size:14px;}
+  .vet-serv .vsc{font-size:13px;font-weight:800;color:var(--verde-osc);}
+  .vet-serv.hecho{filter:grayscale(.5);opacity:.6;} .vet-serv.hecho .vsc{color:#888;}
+
   @keyframes pop{0%{transform:scale(.5);opacity:0;}60%{transform:scale(1.12);}100%{transform:scale(1);opacity:1;}}
   .celebra{animation:pop .35s ease-out;}
   @keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-8px);}75%{transform:translateX(8px);}}
@@ -447,17 +496,33 @@
 
   // Distribución de locales adentro del shopping (x en px dentro del mundo)
   const TIENDAS_MALL = [
-    {t:"Comidas",    emoji:"🍔", color:"#ff8a5b", x:430,  food:true},
-    {t:"Heladería",  emoji:"🍦", color:"#7ed0ff", x:760},
-    {t:"Juguetería", emoji:"🧸", color:"#ffd24a", x:1080},
-    {t:"Ropa",       emoji:"👕", color:"#b58bff", x:1400},
-    {t:"Librería",   emoji:"📚", color:"#6fcf97", x:1720},
-    {t:"Tecnología", emoji:"📱", color:"#5b8def", x:2120},
-    {t:"Mascotas",   emoji:"🐶", color:"#ffa3c7", x:2440},
-    {t:"Deportes",   emoji:"⚽", color:"#4ec0a8", x:2760},
+    {t:"Comidas",      emoji:"🍔", color:"#ff8a5b", x:430,  food:true},
+    {t:"Heladería",    emoji:"🍦", color:"#7ed0ff", x:770},
+    {t:"Juguetería",   emoji:"🧸", color:"#ffd24a", x:1110},
+    {t:"Ropa",         emoji:"👕", color:"#b58bff", x:1450},
+    {t:"Librería",     emoji:"📚", color:"#6fcf97", x:1790},
+    {t:"Tecnología",   emoji:"📱", color:"#5b8def", x:2130},
+    {t:"Mascotas",     emoji:"🐶", color:"#ffa3c7", x:2470},
+    {t:"Salud Animal", emoji:"🐾", color:"#5ad0b0", x:2810, vet:true},
+    {t:"Deportes",     emoji:"⚽", color:"#4ec0a8", x:3150},
   ];
-  const MALL_W = 2980;          // ancho total del mundo del shopping
-  const ESCALERA_X = 1920;      // posición de la escalera mecánica
+  const MALL_W = 3380;          // ancho total del mundo del shopping
+  const ESCALERA_X = 1960;      // posición de la escalera mecánica
+
+  // Mascotas que se pueden adoptar (comprándolas en la tienda "Mascotas")
+  const MASCOTAS_ADOPTABLES = {
+    perro:{emoji:"🐶", tipo:"Perrito", peludo:true},
+    gato: {emoji:"🐱", tipo:"Gatito",  peludo:true},
+    pez:  {emoji:"🐠", tipo:"Pececito", peludo:false},
+  };
+  const NOMBRES_MASCOTA = ["Firulais","Michi","Rocky","Luna","Toby","Nina","Coco","Pelusa","Max","Lola","Bobby","Kira"];
+  // Servicios de la veterinaria (cuidados que se le hacen a la mascota)
+  const SERVICIOS_VET = [
+    {id:"banar",  nombre:"Bañar",        emoji:"🛁", stat:"limpieza", costo:15, efecto:"bañado y brillante ✨"},
+    {id:"cortar", nombre:"Cortar pelo",  emoji:"✂️", stat:"pelo",     costo:20, efecto:"con un corte prolijo 💇", soloPeludo:true},
+    {id:"curar",  nombre:"Curar / Vacunar", emoji:"💉", stat:"salud",  costo:25, efecto:"sano y vacunado 💪"},
+    {id:"comer",  nombre:"Dar de comer", emoji:"🍖", stat:"animo",    costo:10, efecto:"feliz y con la panza llena 😋"},
+  ];
 
   /* =====================================================================
      ESTADO
@@ -473,6 +538,8 @@
     monedasJuntadas:[],
     mallX:230, cam:0, _mt:null,
     pago:null,                 // datos del desafío de vuelto en curso
+    mascotas:[], vetSel:0,     // mascotas adoptadas y la seleccionada en la vet
+    vetOcupada:false,          // bloquea botones mientras corre una animación
   };
 
   const $app = () => document.getElementById("app");
@@ -482,12 +549,14 @@
 
   function guardar(){ try{ localStorage.setItem("ciudadJuego", JSON.stringify({
     avatar:estado.avatar,nombre:estado.nombre,saldoBanco:estado.saldoBanco,
-    efectivo:estado.efectivo,monedas:estado.monedas,practicaVuelto:estado.practicaVuelto})); }catch(e){} }
+    efectivo:estado.efectivo,monedas:estado.monedas,practicaVuelto:estado.practicaVuelto,
+    mascotas:estado.mascotas})); }catch(e){} }
   function cargar(){ try{ const d=JSON.parse(localStorage.getItem("ciudadJuego"));
     if(d){estado.avatar=d.avatar??0;estado.nombre=d.nombre||"";
       estado.saldoBanco=d.saldoBanco??CONFIG.saldoBancoInicial;
       estado.efectivo=d.efectivo??0;estado.monedas=d.monedas??0;
-      estado.practicaVuelto=d.practicaVuelto??true;} }catch(e){} }
+      estado.practicaVuelto=d.practicaVuelto??true;
+      estado.mascotas=Array.isArray(d.mascotas)?d.mascotas:[];} }catch(e){} }
 
   /* ---------- Sonidos ---------- */
   let actx=null;
@@ -544,6 +613,7 @@
     else if(s==="mall") renderMall();
     else if(s==="tienda") renderTienda();
     else if(s==="vuelto") renderVuelto();
+    else if(s==="vet") renderVet();
     else renderCiudad();
   }
 
@@ -837,15 +907,17 @@
   /* =====================================================================
      MALL INTERIOR — se recorre caminando como un shopping de verdad
      ===================================================================== */
-  // NPCs adentro del shopping
+  // NPCs adentro del shopping (repartidos por todo el mundo del mall)
   const NPC_MALL = [
     {x:300, a:2, pose:"sit"}, {x:380, a:5, pose:"sit"}, {x:470, a:7, pose:"sit"},
-    {x:640, a:9, pose:"wander"}, {x:1180, a:4, pose:"stand"}, {x:1500, a:1, pose:"wander"},
-    {x:1820, a:8, pose:"stand"}, {x:2240, a:6, pose:"wander"}, {x:2600, a:3, pose:"stand"},
-    {x:980, a:0, pose:"wander"},
+    {x:660, a:9, pose:"wander"}, {x:1200, a:4, pose:"stand"}, {x:1560, a:1, pose:"wander"},
+    {x:1860, a:8, pose:"stand"}, {x:2300, a:6, pose:"wander"}, {x:2900, a:3, pose:"stand"},
+    {x:1000, a:0, pose:"wander"}, {x:3200, a:5, pose:"wander"},
   ];
 
   function vidrieraItems(t){
+    const def=TIENDAS_MALL.find(s=>s.t===t);
+    if(def&&def.vet) return SERVICIOS_VET.slice(0,4).map(s=>`<span>${s.emoji}</span>`).join("");
     return PRODUCTOS.filter(p=>p.tienda===t).slice(0,4).map(p=>`<span>${p.emoji}</span>`).join("");
   }
 
@@ -882,12 +954,13 @@
     // plantas / bancos / decoraciones
     const props = `
       <div class="m-prop" style="left:600px">🪴</div>
-      <div class="m-prop" style="left:900px">🛒</div>
+      <div class="m-prop" style="left:940px">🛒</div>
       <div class="m-prop" style="left:1300px">🪴</div>
       <div class="m-prop" style="left:1640px;font-size:30px">🚮</div>
-      <div class="m-prop" style="left:2000px">🪴</div>
-      <div class="m-prop" style="left:2360px;font-size:30px">🛗</div>
-      <div class="m-prop" style="left:2700px">🪴</div>`;
+      <div class="m-prop" style="left:2300px">🪴</div>
+      <div class="m-prop" style="left:2660px;font-size:30px">🛗</div>
+      <div class="m-prop" style="left:3000px">🪴</div>
+      <div class="m-prop" style="left:3320px;font-size:30px">🚮</div>`;
 
     // NPCs del shopping
     const npcs = NPC_MALL.map((n,i)=>{
@@ -946,7 +1019,10 @@
     };
     $app().querySelectorAll("[data-tienda]").forEach(el=>{
       el.onclick=(e)=>{ e.stopPropagation(); const t=el.dataset.tienda, x=parseFloat(el.dataset.x);
-        beep(520,.08); caminarMallA(x, ()=>{ sOk(); estado.tiendaActiva=t; estado.carrito={}; irA("tienda"); }); };
+        const def=TIENDAS_MALL.find(s=>s.t===t);
+        beep(520,.08); caminarMallA(x, ()=>{ sOk();
+          if(def&&def.vet){ irA("vet"); }
+          else { estado.tiendaActiva=t; estado.carrito={}; irA("tienda"); } }); };
     });
     document.getElementById("izqB").onclick=()=>caminarMallA(estado.mallX-260);
     document.getElementById("derB").onclick=()=>caminarMallA(estado.mallX+260);
@@ -1109,9 +1185,16 @@
     estado.efectivo-=tot;
     const lista=Object.entries(estado.carrito).map(([id,c])=>{const p=PRODUCTOS.find(x=>x.id===id);return `${p.emoji} ${p.nombre} x${c}`;}).join("  ");
     const tienda=estado.tiendaActiva;
+    // ¿Adoptamos alguna mascota en esta compra?
+    const adoptados=adoptarMascotasDeCarrito();
     estado.carrito={};
     const vueltoMsg = pg
       ? `<div class="globo">✅ ¡Vuelto correcto!<br>Pagaste con ${plata(pg.pagaCon)} y te dieron <b>${plata(pg.correcto)}</b> de vuelto 💵</div>`
+      : "";
+    const adoptaMsg = adoptados.length
+      ? `<div class="globo" style="background:#e3fff0;border-color:#5ad0b0">
+           🐾 ¡Adoptaste a <b>${adoptados.map(m=>m.emoji+" "+m.nombre).join(", ")}</b>!<br>
+           Llevalo a <b>🐾 Salud Animal</b> para bañarlo, cortarle el pelo y curarlo.</div>`
       : "";
     estado.scene="tienda";
     $app().innerHTML=`<div class="tienda-bg"></div>
@@ -1119,16 +1202,35 @@
         <div style="font-size:64px">🎉</div><div class="titulo">¡Compraste!</div>
         <div class="globo">${lista}</div>
         ${vueltoMsg}
+        ${adoptaMsg}
         <p>Gastaste <b>${plata(tot)}</b>. Te quedan <b>${plata(estado.efectivo)}</b> 👛</p>
+        ${adoptados.length?`<button class="btn" style="background:#2bbf9a" id="avet">🐾 Ir a la veterinaria</button>`:""}
         <button class="btn verde" id="seguir">🛍️ Seguir en esta tienda</button>
         <button class="btn" id="almall">🏬 Volver al shopping</button>
         <button class="btn gris" id="ciudad">🏙️ Salir a la ciudad</button>
       </div></div>`;
     guardar();
     estado.pago=null;
+    const avet=document.getElementById("avet");
+    if(avet) avet.onclick=()=>{beep(500,.08);estado.vetSel=estado.mascotas.length-1;irA("vet");};
     document.getElementById("seguir").onclick=()=>{beep(500,.08);estado.tiendaActiva=tienda;irA("tienda");};
     document.getElementById("almall").onclick=()=>{beep(500,.08);irA("mall");};
     document.getElementById("ciudad").onclick=()=>{beep(500,.08);irA("ciudad");};
+  }
+
+  // Crea las mascotas (con sus cuidados pendientes) según lo comprado en el carrito
+  function adoptarMascotasDeCarrito(){
+    const nuevos=[];
+    for(const [id,c] of Object.entries(estado.carrito)){
+      const def=MASCOTAS_ADOPTABLES[id]; if(!def)continue;
+      for(let i=0;i<c;i++){
+        const nombre=NOMBRES_MASCOTA[Math.floor(Math.random()*NOMBRES_MASCOTA.length)];
+        const m={ id:id, emoji:def.emoji, tipo:def.tipo, peludo:def.peludo, nombre,
+          limpieza:35, pelo:def.peludo?30:100, salud:50, animo:45 };
+        estado.mascotas.push(m); nuevos.push(m);
+      }
+    }
+    return nuevos;
   }
 
   function confetti(){
@@ -1140,6 +1242,145 @@
       c.style.animationDelay=(Math.random()*.4)+"s";
       document.body.appendChild(c); setTimeout(()=>c.remove(),3000);
     }
+  }
+
+  /* =====================================================================
+     VETERINARIA / SALUD ANIMAL — cuidar a la mascota adoptada
+     ===================================================================== */
+  function estadoMascota(m){
+    const prom=Math.round((m.limpieza+m.pelo+m.salud+m.animo)/4);
+    if(prom>=95) return {cara:"🥰", txt:"¡Está feliz y saludable!", ok:true};
+    if(prom>=70) return {cara:"🙂", txt:"Está bastante bien.", ok:false};
+    if(prom>=45) return {cara:"😟", txt:"Necesita unos cuidados.", ok:false};
+    return {cara:"😢", txt:"¡Necesita ayuda urgente!", ok:false};
+  }
+  function barra(label, emoji, val, color){
+    return `<div class="vet-stat">
+      <span class="vs-lbl">${emoji} ${label}</span>
+      <div class="vs-bar"><div class="vs-fill" style="width:${val}%;background:${color}"></div></div>
+      <span class="vs-num">${val}%</span></div>`;
+  }
+
+  function renderVet(){
+    if(estado.vetSel>=estado.mascotas.length) estado.vetSel=estado.mascotas.length-1;
+    const tieneMascotas=estado.mascotas.length>0;
+
+    let cuerpo;
+    if(!tieneMascotas){
+      cuerpo=`
+        <div class="panel" style="text-align:center;margin-top:8px">
+          <div style="font-size:60px">🐾</div>
+          <div class="titulo">Veterinaria Salud Animal</div>
+          <div class="globo">Todavía no tenés ninguna mascota.<br>
+            Comprá un 🐶, 🐱 o 🐠 en la tienda <b>Mascotas</b> y traelo acá para cuidarlo 💕</div>
+          <button class="btn verde" id="irMascotas">🐶 Ir a Mascotas</button>
+          <button class="btn gris" id="almall2">🏬 Volver al shopping</button>
+        </div>`;
+    } else {
+      const m=estado.mascotas[estado.vetSel];
+      const est=estadoMascota(m);
+      const selector = estado.mascotas.length>1
+        ? `<div class="vet-tabs">${estado.mascotas.map((p,i)=>
+            `<button class="vtab ${i===estado.vetSel?"activa":""}" data-sel="${i}">${p.emoji} ${p.nombre}</button>`).join("")}</div>`
+        : "";
+      const servicios = SERVICIOS_VET.map(sv=>{
+        const naPet = sv.soloPeludo && !m.peludo;
+        const lleno = m[sv.stat]>=100;
+        const dis = naPet || lleno;
+        const etiqueta = naPet ? "No necesita" : (lleno ? "¡Listo! ✓" : plata(sv.costo));
+        return `<button class="vet-serv ${dis?"hecho":""}" data-serv="${sv.id}" ${dis?"disabled":""}>
+            <span class="vse">${sv.emoji}</span>
+            <span class="vsn">${sv.nombre}</span>
+            <span class="vsc">${etiqueta}</span></button>`;
+      }).join("");
+
+      cuerpo=`
+        ${selector}
+        <div class="vet-room">
+          <div class="vet-pet" id="vetPet">
+            <div class="pet-emoji ${m.limpieza<50?"sucio":""} ${m.peludo&&m.pelo<50?"peludo":""}" id="petEmoji">${m.emoji}</div>
+            <div class="pet-cara" id="petCara">${est.cara}</div>
+            ${m.salud<50?`<div class="pet-bandage">🩹</div>`:""}
+            <div class="vet-fx" id="vetFx"></div>
+          </div>
+          <div class="vet-mesa"></div>
+          <div class="pet-nombre">${m.emoji} <b>${m.nombre}</b> · ${est.txt}</div>
+        </div>
+        <div class="panel">
+          ${barra("Limpieza","🛁",m.limpieza,"#34b3ff")}
+          ${barra("Pelo","✂️",m.pelo,"#a06bff")}
+          ${barra("Salud","❤️",m.salud,"#ff5d6c")}
+          ${barra("Ánimo","😊",m.animo,"#ffb300")}
+          <div class="vet-servicios">${servicios}</div>
+          ${est.ok?`<div class="globo" style="background:#e3fff0;border-color:#5ad0b0">🏆 ¡${m.nombre} está perfecto! Sos un genio cuidando mascotas.</div>`:""}
+        </div>`;
+    }
+
+    $app().innerHTML=`<div class="vet-bg"></div>
+      <div class="vista">
+        ${cabecera("🐾 Salud Animal")}
+        ${hud()}
+        ${cuerpo}
+      </div>`;
+
+    document.getElementById("volver").onclick=()=>{beep(400,.08);irA("mall");};
+    const irM=document.getElementById("irMascotas");
+    if(irM) irM.onclick=()=>{beep(500,.08);estado.tiendaActiva="Mascotas";estado.carrito={};irA("tienda");};
+    const am2=document.getElementById("almall2");
+    if(am2) am2.onclick=()=>{beep(400,.08);irA("mall");};
+    $app().querySelectorAll("[data-sel]").forEach(b=>b.onclick=()=>{
+      beep(550,.07); estado.vetSel=parseInt(b.dataset.sel,10); renderVet(); });
+    $app().querySelectorAll("[data-serv]").forEach(b=>b.onclick=()=>hacerServicio(b.dataset.serv));
+  }
+
+  function hacerServicio(servId){
+    if(estado.vetOcupada) return;
+    const sv=SERVICIOS_VET.find(s=>s.id===servId);
+    const m=estado.mascotas[estado.vetSel];
+    if(!sv||!m) return;
+    if(m[sv.stat]>=100){ return; }
+    if(estado.efectivo<sv.costo){ sError(); flash(`Ese cuidado cuesta ${plata(sv.costo)} y no te alcanza 😅. ¡Pasá por el cajero! 🏧`); return; }
+
+    estado.vetOcupada=true;
+    estado.efectivo-=sv.costo;
+    m[sv.stat]=100;
+    // pequeño rebote del bicho + efecto del servicio
+    const pet=document.getElementById("petEmoji");
+    const fx=document.getElementById("vetFx");
+    if(pet){ pet.classList.add("trabajando"); }
+    lanzarFx(fx, servId);
+    if(servId==="banar") sMoneda(); else if(servId==="cortar") sTecla(); else if(servId==="curar") sOk(); else sMoneda();
+
+    setTimeout(()=>{
+      estado.vetOcupada=false;
+      sFiesta();
+      const todoOk=estadoMascota(m).ok;
+      if(todoOk){ confetti(); estado.monedas++; estado.efectivo+=5; }
+      guardar();
+      renderVet();
+      // mensajito de resultado
+      flash(`✅ ${m.nombre} quedó ${sv.efecto}`);
+      if(todoOk) setTimeout(()=>flash(`🏆 ¡${m.nombre} está perfecto! +1 🪙`),1200);
+    }, 1500);
+  }
+
+  function lanzarFx(fx, servId){
+    if(!fx) return;
+    fx.innerHTML="";
+    const conf = {
+      banar:{em:["🫧","💧","🫧","🛁","💦","🫧"], cls:"fx-sube"},
+      cortar:{em:["✂️","💇","✂️","💈","✂️"], cls:"fx-corte"},
+      curar:{em:["💉","✨","❤️‍🩹","✨","💊","✨"], cls:"fx-sube"},
+      comer:{em:["🍖","😋","🦴","❤️","🍖"], cls:"fx-sube"},
+    }[servId] || {em:["✨"],cls:"fx-sube"};
+    conf.em.forEach((e,i)=>{
+      const s=document.createElement("span");
+      s.className="fxitem "+conf.cls; s.textContent=e;
+      s.style.left=(15+Math.random()*70)+"%";
+      s.style.animationDelay=(i*0.12)+"s";
+      fx.appendChild(s);
+    });
+    setTimeout(()=>{ if(fx) fx.innerHTML=""; }, 1600);
   }
 
   /* ---------- flash de aviso ---------- */
