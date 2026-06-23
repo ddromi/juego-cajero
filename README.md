@@ -23,6 +23,11 @@ Funciona en el navegador de la **computadora o el celular**. No necesita interne
 - **Desafío del vuelto** 🧮: antes de pagar el juego pregunta *"¿Vas a calcular
   el vuelto?"*. Si decís que sí, elegís entre varias opciones cuánto cambio te
   tienen que dar (con pista si te cuesta).
+- **🐾 Veterinaria "Salud Animal"**: comprás una mascota (🐶 🐱 🐠) en la tienda
+  **Mascotas** y la llevás a la veterinaria para **bañarla, cortarle el pelo,
+  curarla/vacunarla y darle de comer**. Cada cuidado cuesta plata, sube una
+  barra (Limpieza / Pelo / Salud / Ánimo) y tiene su animación; cuando la
+  mascota queda perfecta, ¡festejo y recompensa! La mascota se guarda sola.
 
 ## ▶️ Cómo jugar
 
@@ -61,7 +66,10 @@ están los **datos editables** sin tocar la lógica:
 
 - **Más productos / tiendas**: agregá líneas en `PRODUCTOS`. Si querés que la
   tienda nueva tenga vidriera adentro del shopping, sumala también a
-  `TIENDAS_MALL` (con su `emoji`, `color` y posición `x`).
+  `TIENDAS_MALL` (con su `emoji`, `color` y posición `x`). Una tienda con
+  `vet:true` abre la veterinaria en vez de un catálogo.
+- **Mascotas adoptables**: editá `MASCOTAS_ADOPTABLES`. **Cuidados de la vet**:
+  editá `SERVICIOS_VET` (nombre, emoji, qué barra sube y cuánto cuesta).
 - **Personajes**: agregá objetos a `AVATARES` (piel, pelo, ropa, accesorio).
 - **Montos del cajero**: editá `CONFIG.montosRapidos`.
 - **Billetes del desafío del vuelto**: editá `BILLETES`.
