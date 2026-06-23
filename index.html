@@ -483,6 +483,23 @@
     border-radius:12px;padding:1px 7px;font-size:15px;box-shadow:0 2px 0 rgba(0,0,0,.12);white-space:nowrap;
     animation:flota 1.4s ease-in-out infinite;}
   .pet-acc-city{position:absolute;bottom:78%;left:50%;transform:translateX(-50%);font-size:20px;line-height:1;}
+  .mascota-ciudad{cursor:pointer;}
+
+  /* ---------- Mercado: elegir medio de cobro ---------- */
+  .cobro-ops{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0;}
+  .cobro{border:none;border-radius:16px;padding:12px 4px;font-family:inherit;cursor:pointer;
+    display:flex;flex-direction:column;align-items:center;gap:2px;color:#fff;font-weight:800;
+    box-shadow:0 5px 0 rgba(0,0,0,.18);}
+  .cobro:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.18);}
+  .cobro .cv-e{font-size:28px;} .cobro small{font-size:10px;font-weight:700;opacity:.95;}
+  .cobro.qr{background:#1c6fd6;} .cobro.tar{background:#7a5cff;} .cobro.efe{background:#25b85f;}
+
+  /* ---------- Álbum de mascotas ---------- */
+  .alb-lista{display:flex;flex-direction:column;gap:8px;margin:6px 0 12px;max-height:46vh;overflow-y:auto;}
+  .alb-fila{display:flex;align-items:center;gap:12px;background:#f3f6fb;border-radius:12px;padding:8px 12px;}
+  .alb-emoji{font-size:40px;position:relative;line-height:1;}
+  .alb-emoji small{position:absolute;top:-6px;right:-8px;font-size:18px;}
+  .alb-info{font-size:14px;line-height:1.3;}
 
   /* ---------- Botón + modal de la misión (lista de compras) ---------- */
   .mision-btn{position:absolute;border:none;background:#fff;border-radius:14px;padding:7px 9px;
@@ -591,8 +608,9 @@
     {t:"Mascotas",     emoji:"🐶", color:"#ffa3c7", x:2470},
     {t:"Salud Animal", emoji:"🐾", color:"#5ad0b0", x:2810, vet:true},
     {t:"Deportes",     emoji:"⚽", color:"#4ec0a8", x:3150},
+    {t:"Mercado",      emoji:"💱", color:"#ffc04d", x:3480, vender:true},
   ];
-  const MALL_W = 3380;          // ancho total del mundo del shopping
+  const MALL_W = 3700;          // ancho total del mundo del shopping
   const ESCALERA_X = 1960;      // posición de la escalera mecánica
 
   // Mascotas que se pueden adoptar (comprándolas en la tienda "Mascotas")
@@ -682,6 +700,7 @@
     mascotas:[], vetSel:0,     // mascotas adoptadas y la seleccionada en la vet
     vetOcupada:false,          // bloquea botones mientras corre una animación
     mision:null,               // lista de compras con presupuesto
+    inventario:{},             // cosas compradas que se pueden revender
   };
 
   const $app = () => document.getElementById("app");
@@ -694,14 +713,15 @@
   function guardar(){ try{ localStorage.setItem("ciudadJuego", JSON.stringify({
     avatar:estado.avatar,nombre:estado.nombre,saldoBanco:estado.saldoBanco,
     efectivo:estado.efectivo,monedas:estado.monedas,practicaVuelto:estado.practicaVuelto,
-    mascotas:estado.mascotas,mision:estado.mision})); }catch(e){} }
+    mascotas:estado.mascotas,mision:estado.mision,inventario:estado.inventario})); }catch(e){} }
   function cargar(){ try{ const d=JSON.parse(localStorage.getItem("ciudadJuego"));
     if(d){estado.avatar=d.avatar??0;estado.nombre=d.nombre||"";
       estado.saldoBanco=d.saldoBanco??CONFIG.saldoBancoInicial;
       estado.efectivo=d.efectivo??0;estado.monedas=d.monedas??0;
       estado.practicaVuelto=d.practicaVuelto??true;
       estado.mascotas=Array.isArray(d.mascotas)?d.mascotas:[];
-      estado.mision=d.mision||null;} }catch(e){} }
+      estado.mision=d.mision||null;
+      estado.inventario=(d.inventario&&typeof d.inventario==="object")?d.inventario:{};} }catch(e){} }
 
   /* ---------- Sonidos ---------- */
   let actx=null;
@@ -717,6 +737,16 @@
   const sMoneda=()=>{beep(880,.07);setTimeout(()=>beep(1175,.09),70);};
   const sPaso=()=>beep(300,.04,"triangle",.05);
   const sFiesta=()=>{[523,659,784,1047,1319].forEach((f,i)=>setTimeout(()=>beep(f,.15),i*90));};
+  const sCaja=()=>{beep(1500,.05,"square",.12);setTimeout(()=>beep(1800,.08,"square",.12),60);}; // pago QR/caja
+  // sonidos de animales sintetizados
+  function sAnimal(id){
+    if(id==="perro"||id==="gato"){
+      if(id==="perro"){ beep(240,.1,"sawtooth",.16); setTimeout(()=>beep(200,.14,"sawtooth",.16),150); }
+      else { beep(700,.16,"sine",.13); setTimeout(()=>beep(560,.18,"sine",.12),140); }
+    } else { // pez: burbujitas
+      [600,820,1000].forEach((f,i)=>setTimeout(()=>beep(f,.05,"sine",.1),i*70));
+    }
+  }
 
   /* ---------- Personaje PRO (ilustración SVG) ---------- */
   // peinados: capas de pelo que se dibujan sobre la cabeza
@@ -826,6 +856,7 @@
     else if(s==="mall") renderMall();
     else if(s==="mallAlta") renderMallAlta();
     else if(s==="parque") renderParque();
+    else if(s==="vender") renderVender();
     else if(s==="tienda") renderTienda();
     else if(s==="vuelto") renderVuelto();
     else if(s==="vet") renderVet();
@@ -926,6 +957,7 @@
         ${hud()}
         <button class="sonido-btn" id="snd">${CONFIG.sonido?"🔊":"🔇"}</button>
         ${botonMision("left:8px;top:56px")}
+        ${botonAlbum("left:8px;top:104px")}
 
         <div class="deco fija" style="left:8%;bottom:33%;font-size:38px">🌳</div>
         <div class="deco fija" style="left:33%;bottom:33%;font-size:30px">🚦</div>
@@ -959,10 +991,13 @@
       document.getElementById("snd").textContent=CONFIG.sonido?"🔊":"🔇";if(CONFIG.sonido)beep(700,.1);};
     const mb=document.getElementById("misionBtn");
     if(mb) mb.onclick=()=>{ beep(600,.08); abrirMision(); };
+    const ab=document.getElementById("albumBtn");
+    if(ab) ab.onclick=()=>{ beep(600,.08); abrirAlbum(); };
 
     const av=document.getElementById("avatar");
     const per=document.getElementById("cityperson");
     const petCity=document.getElementById("petCity");
+    if(petCity) petCity.onclick=()=>pasear(petCity);
 
     function caminarA(x, cb){
       x=clamp(x,5,95);
@@ -1101,6 +1136,7 @@
     const av=document.getElementById("avatar");
     const per=document.getElementById("cityperson");
     const petCity=document.getElementById("petCity");
+    if(petCity) petCity.onclick=()=>pasear(petCity);
 
     function caminarA(x, cb){
       x=clamp(x,5,95);
@@ -1393,6 +1429,7 @@
         const def=TIENDAS_MALL.find(s=>s.t===t);
         beep(520,.08); caminarMallA(x, ()=>{ sOk();
           if(def&&def.vet){ irA("vet"); }
+          else if(def&&def.vender){ irA("vender"); }
           else { estado.tiendaActiva=t; estado.carrito={}; irA("tienda"); } }); };
     });
     $app().querySelectorAll("[data-subir]").forEach(el=>{
@@ -1650,6 +1687,10 @@
     const tienda=estado.tiendaActiva;
     // ¿Adoptamos alguna mascota en esta compra?
     const adoptados=adoptarMascotasDeCarrito();
+    // guardamos lo comprado (que no sea mascota) para poder revenderlo en el Mercado
+    for(const [id,c] of Object.entries(estado.carrito)){
+      if(!MASCOTAS_ADOPTABLES[id]) estado.inventario[id]=(estado.inventario[id]||0)+c;
+    }
     // ¿Avanzamos / completamos la misión (lista de compras)?
     const misionEstabaPendiente = estado.mision && !estado.mision.completada;
     chequearMision(estado.carrito);
@@ -2083,6 +2124,112 @@
     const m=estado.mision;
     return `<button class="mision-btn" id="misionBtn" style="${estilo}">📋
       <span class="mb-badge">${m.hechos.length}/${m.items.length}</span></button>`;
+  }
+
+  /* =====================================================================
+     MERCADO — vender cosas y cobrar con QR / tarjeta / efectivo
+     ===================================================================== */
+  const precioVenta = p => Math.max(5, Math.round(p*0.6));   // se revende al 60%
+  function renderVender(){
+    const items=Object.entries(estado.inventario).filter(([id,c])=>c>0).map(([id,c])=>{
+      const p=PRODUCTOS.find(x=>x.id===id); if(!p)return"";
+      return `<div class="producto" data-vender="${id}">
+        <div class="badge">${c}</div>
+        <div class="pemoji">${p.emoji}</div><div class="pnombre">${p.nombre}</div>
+        <div class="pprecio">Vendés por ${plata(precioVenta(p.precio))}</div></div>`;}).join("");
+    const vacio = !items;
+
+    $app().innerHTML=`<div class="tienda-bg"></div>
+      <div class="vista">
+        ${cabecera("💱 Mercado · Vender")}
+        ${hud()}
+        <div class="globo" style="margin-top:6px">Vendé las cosas que compraste. Si te pagan con
+          <b>📱 QR</b> o <b>💳 tarjeta</b>, la plata va a tu <b>cuenta del banco 🏦</b>.
+          Si te pagan en <b>💵 efectivo</b>, va a tu <b>billetera 👛</b>.</div>
+        ${vacio
+          ? `<div class="panel" style="text-align:center"><div style="font-size:54px">🪙</div>
+              <div class="titulo">No tenés nada para vender</div>
+              <p style="opacity:.75">Comprá cosas en las tiendas y volvé al Mercado para revenderlas.</p>
+              <button class="btn gris" id="almall3">🏬 Volver al shopping</button></div>`
+          : `<div class="productos">${items}</div>`}
+      </div>`;
+
+    document.getElementById("volver").onclick=()=>{beep(400,.08);irA("mall");};
+    const a3=document.getElementById("almall3"); if(a3)a3.onclick=()=>{beep(400,.08);irA("mall");};
+    $app().querySelectorAll("[data-vender]").forEach(el=>el.onclick=()=>elegirCobro(el.dataset.vender));
+  }
+  function elegirCobro(id){
+    const p=PRODUCTOS.find(x=>x.id===id); if(!p)return;
+    const monto=precioVenta(p.precio);
+    beep(600,.08);
+    const ov=document.createElement("div"); ov.className="modal"; ov.id="modalCobro";
+    ov.innerHTML=`<div class="modal-card" style="text-align:center">
+      <div style="font-size:48px">${p.emoji}</div>
+      <div class="titulo">Vender ${p.nombre}</div>
+      <p style="margin:0 0 4px">Te pagan <b>${plata(monto)}</b>. ¿Cómo querés cobrar?</p>
+      <div class="cobro-ops">
+        <button class="cobro qr" data-via="qr"><span class="cv-e">📱</span><span>QR</span><small>al banco 🏦</small></button>
+        <button class="cobro tar" data-via="tarjeta"><span class="cv-e">💳</span><span>Tarjeta</span><small>al banco 🏦</small></button>
+        <button class="cobro efe" data-via="efectivo"><span class="cv-e">💵</span><span>Efectivo</span><small>a la billetera 👛</small></button>
+      </div>
+      <button class="btn gris" id="cobroCancel" style="margin-top:6px">Cancelar</button>
+    </div>`;
+    document.body.appendChild(ov);
+    ov.querySelectorAll("[data-via]").forEach(b=>b.onclick=()=>cobrar(id, monto, b.dataset.via, ov));
+    document.getElementById("cobroCancel").onclick=()=>{ beep(400,.08); ov.remove(); };
+    ov.addEventListener("click",e=>{ if(e.target===ov) ov.remove(); });
+  }
+  function cobrar(id, monto, via, ov){
+    // descontar del inventario
+    estado.inventario[id]=(estado.inventario[id]||1)-1;
+    if(estado.inventario[id]<=0) delete estado.inventario[id];
+    let destino;
+    if(via==="efectivo"){ estado.efectivo+=monto; destino="billetera 👛"; sMoneda(); }
+    else { estado.saldoBanco+=monto; destino="cuenta del banco 🏦"; sCaja(); }
+    confetti(); guardar();
+    if(ov) ov.remove();
+    renderVender();
+    const comoPago = via==="qr" ? "con QR 📱" : (via==="tarjeta" ? "con tarjeta 💳" : "en efectivo 💵");
+    flash(`✅ Vendido ${comoPago}. ${plata(monto)} fueron a tu ${destino}`);
+  }
+
+  /* ---------- Pasear / mimar a la mascota (sube ánimo) ---------- */
+  function pasear(host){
+    const m=estado.mascotas[0]; if(!m) return;
+    aplicarDecay();
+    m.animo=clamp(m.animo+18,0,100); sumarXP(m,5);
+    sAnimal(m.id); guardar();
+    if(host){
+      const b=document.createElement("div"); b.className="burbuja"; b.textContent="❤️ ¡Le encanta!";
+      host.appendChild(b); setTimeout(()=>b.remove(),1200);
+      host.style.transition="transform .2s"; host.style.transform=(host.style.transform||"")+" translateY(-8px)";
+      setTimeout(()=>{ host.style.transform=host.style.transform.replace(" translateY(-8px)",""); },220);
+    }
+  }
+
+  /* ---------- Álbum de mascotas ---------- */
+  function botonAlbum(estilo){
+    if(!estado.mascotas.length) return "";
+    return `<button class="mision-btn" id="albumBtn" style="${estilo}">📔
+      <span class="mb-badge">${estado.mascotas.length}🐾</span></button>`;
+  }
+  function abrirAlbum(){
+    aplicarDecay();
+    const filas=estado.mascotas.map(m=>{
+      const prom=Math.round((m.limpieza+m.pelo+m.salud+m.animo)/4);
+      return `<div class="alb-fila">
+        <span class="alb-emoji">${m.emoji}${m.accesorio?`<small>${accEmoji(m.accesorio)}</small>`:""}</span>
+        <span class="alb-info"><b>${m.nombre}</b> · ${m.tipo}<br>
+          <small>⭐ Nivel ${nivelDe(m.xp)} · estado ${prom}%</small></span></div>`;
+    }).join("");
+    const ov=document.createElement("div"); ov.className="modal"; ov.id="modalAlbum";
+    ov.innerHTML=`<div class="modal-card">
+      <div class="titulo">📔 Mi Álbum de Mascotas</div>
+      <p style="text-align:center;margin:0 0 8px;opacity:.7">Tenés ${estado.mascotas.length} mascota(s) 🐾</p>
+      <div class="alb-lista">${filas}</div>
+      <button class="btn verde" id="cerrarAlbum">Cerrar</button></div>`;
+    document.body.appendChild(ov);
+    ov.onclick=(e)=>{ if(e.target===ov||e.target.id==="cerrarAlbum"){ beep(400,.08); ov.remove(); } };
   }
 
   /* ---------- flash de aviso ---------- */

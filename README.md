@@ -24,6 +24,12 @@ Funciona en el navegador de la **computadora o el celular**. No necesita interne
 - **🛗 Escaleras mecánicas subibles + Planta Alta**: tocás la escalera del
   shopping y subís al **Piso 2** lleno de locales nuevos (☕ Café, 🎬 Cine,
   🕹️ Arcade, 📺 Electro, 🛋️ Hogar, 🎁 Regalos). Bajás por la escalera de vuelta.
+- **💱 Mercado (vender cosas)**: lo que comprás queda en tu inventario y lo
+  podés **revender**. Elegís el **medio de cobro**: con **📱 QR** o **💳 tarjeta**
+  la plata va a tu **cuenta del banco 🏦**; con **💵 efectivo**, a la **billetera 👛**.
+- **🐶 Mascotas++**: **paseás** a la mascota tocándola (le sube el ánimo y hace
+  su **sonido** 🐕🐱🐠), tenés un **📔 álbum** con todas tus mascotas (nivel y
+  estado), y siguen funcionando los cuidados, niveles y accesorios.
 - **Autos más grandes** y mejor dibujados circulando por la calle.
 - **Centro comercial recorrible**: caminás por adentro con ◀️ ▶️ o tocando el
   piso, pasás por **8 locales** con vidriera, **escalera mecánica**, segundo
