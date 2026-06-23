@@ -18,6 +18,12 @@ Funciona en el navegador de la **computadora o el celular**. No necesita interne
 - **Monedas doradas de verdad** (con brillo y giro). Las monedas **son plata**:
   cada 🪙 vale $5 y va a tu billetera. Si **calculás bien el vuelto, ganás
   monedas** (¡que son dinero!).
+- **🚌 Ómnibus al parque**: pasa un ómnibus por la ciudad; tocás la **parada** y
+  viajás a un **parque** con juegos (🛝 tobogán, hamacas, barrilete), lago con
+  patos, fuente y gente. Volvés en colectivo a la ciudad.
+- **🛗 Escaleras mecánicas subibles + Planta Alta**: tocás la escalera del
+  shopping y subís al **Piso 2** lleno de locales nuevos (☕ Café, 🎬 Cine,
+  🕹️ Arcade, 📺 Electro, 🛋️ Hogar, 🎁 Regalos). Bajás por la escalera de vuelta.
 - **Autos más grandes** y mejor dibujados circulando por la calle.
 - **Centro comercial recorrible**: caminás por adentro con ◀️ ▶️ o tocando el
   piso, pasás por **8 locales** con vidriera, **escalera mecánica**, segundo

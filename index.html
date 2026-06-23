@@ -112,6 +112,49 @@
     background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.2);transition:left .15s;}
   .sw.on{background:var(--verde);} .sw.on::after{left:27px;}
 
+  /* ---------- Ómnibus ---------- */
+  .bus{position:relative;width:178px;height:78px;}
+  .bus .bus-body{position:absolute;bottom:12px;left:0;right:0;height:52px;border-radius:16px 20px 8px 8px;
+    background:linear-gradient(#ffd23f,#f2a900);box-shadow:inset 0 -8px rgba(0,0,0,.16),0 5px 0 rgba(0,0,0,.2);}
+  .bus .bus-stripe{position:absolute;bottom:28px;left:0;right:0;height:6px;background:#e23b3b;}
+  .bus .bus-win{position:absolute;top:18px;width:26px;height:17px;border-radius:4px;
+    background:linear-gradient(#e6f6ff,#a9d8ff);border:2px solid rgba(0,0,0,.12);}
+  .bus .bus-door{position:absolute;bottom:14px;right:14px;width:22px;height:38px;border-radius:5px;
+    background:linear-gradient(#bfe9ff,#7fc6ff);border:2px solid rgba(0,0,0,.18);}
+  .bus .wheel{position:absolute;bottom:0;width:22px;height:22px;border-radius:50%;background:#1b1f24;border:5px solid #6a727c;}
+  .bus .wheel.f{right:26px;} .bus .wheel.b{left:26px;}
+  .bus .bus-label{position:absolute;top:-4px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:800;
+    color:#7a4b00;background:#fff;border-radius:8px;padding:1px 7px;white-space:nowrap;box-shadow:0 2px 0 rgba(0,0,0,.15);}
+  .parada{position:absolute;bottom:32%;transform:translateX(-50%);cursor:pointer;text-align:center;z-index:14;}
+  .parada .poste{width:7px;height:46px;background:#9aa7bd;margin:0 auto;border-radius:4px;}
+  .parada .señal{background:#1c6fd6;color:#fff;border-radius:10px;padding:4px 9px;font-size:12px;font-weight:800;
+    box-shadow:0 3px 0 rgba(0,0,0,.2);white-space:nowrap;}
+  .parada .toque{top:-30px;}
+  /* transición de viaje en bus */
+  .viaje{position:fixed;inset:0;background:linear-gradient(#8fd3ff,#cdeeff);z-index:90;overflow:hidden;
+    display:flex;align-items:flex-end;justify-content:center;}
+  .viaje .ruta{position:absolute;bottom:24%;left:0;right:0;height:8px;background:repeating-linear-gradient(90deg,#ffd54a 0 30px,transparent 30px 60px);}
+  .viaje .busbig{position:absolute;bottom:26%;left:50%;transform:translateX(-50%) scale(1.6);animation:busVibra .3s ease-in-out infinite;}
+  @keyframes busVibra{0%,100%{transform:translateX(-50%) scale(1.6) translateY(0);}50%{transform:translateX(-50%) scale(1.6) translateY(-3px);}}
+  .viaje .vtxt{position:absolute;top:34%;left:0;right:0;text-align:center;font-size:22px;font-weight:800;color:#1b4bb0;}
+  .viaje .paisaje{position:absolute;bottom:31%;font-size:34px;animation:pasaPaisaje 1.1s linear infinite;}
+  @keyframes pasaPaisaje{from{left:110%;}to{left:-10%;}}
+
+  /* ---------- Parque ---------- */
+  .parque{position:absolute;inset:0;overflow:hidden;
+    background:linear-gradient(#8fd3ff 0%,#bfe6ff 42%,#cdeeff 52%,#bfe9a8 52%,#9fd97e 100%);}
+  .parque .pasto{position:absolute;left:0;right:0;bottom:0;height:48%;
+    background:linear-gradient(#aee48a,#86c95f);}
+  .parque .pasto::after{content:"";position:absolute;inset:0;
+    background-image:repeating-linear-gradient(90deg,transparent 0 40px,rgba(0,0,0,.04) 40px 42px);}
+  .parque .camino{position:absolute;left:0;right:0;bottom:0;height:16%;background:#d8c9a8;
+    border-top:4px solid #c3b491;}
+  .parque .pdeco{position:absolute;transform:translateX(-50%);line-height:1;cursor:pointer;}
+  .parque .pdeco.fija{cursor:default;}
+  .parque .estanque{position:absolute;bottom:18%;transform:translateX(-50%);width:130px;height:44px;
+    background:radial-gradient(circle at 50% 40%,#bfe9ff,#6fc0f0);border-radius:50%;
+    box-shadow:inset 0 4px 8px rgba(0,0,0,.15);}
+
   /* ---------- Ciudad ---------- */
   .ciudad{position:absolute;inset:0;overflow:hidden;
     background:linear-gradient(#8fd3ff 0%,#bfe6ff 45%,#e9f7ff 60%);}
@@ -261,6 +304,13 @@
   .m-tap{position:absolute;left:0;right:0;bottom:0;top:11%;z-index:1;cursor:pointer;}
   /* las decoraciones y personajes dejan pasar el toque al piso (para caminar) */
   .m-techo,.m-piso2,.m-pared,.m-piso,.m-prop,.m-mesa,.m-cartel,.m-npc,.m-avatar,.escalera{pointer-events:none;}
+  /* escaleras y carteles para cambiar de piso SÍ se tocan */
+  .escalera[data-subir],.escalera[data-bajar],.m-cartel[data-subir],.m-cartel[data-bajar]{pointer-events:auto;}
+  .m-cartel.m-subir{background:#fff3c4;border:2px solid #ffce00;animation:flota 1.6s ease-in-out infinite;}
+  .escalera.baja .rampa{clip-path:polygon(0 0,28% 0,100% 100%,0 100%);}
+  .piso-alta{background:linear-gradient(#e7dcff,#cdbcf0)!important;}
+  .mall-scene.alta{background:#3a2f55;}
+  .mall-scene.alta .m-pared{background:linear-gradient(#f6f1ff,#ece4fb);}
   .mall-scene .hud{left:62px;right:56px;}
 
   /* local / vidriera */
@@ -575,6 +625,46 @@
   // Moneda dorada dibujada (en vez del emoji 🪙)
   const coinHTML = (px) => `<span class="coin" style="width:${px}px;height:${px}px;font-size:${Math.round(px*0.5)}px">$</span>`;
 
+  // ---- PLANTA ALTA del shopping (se llega por la escalera mecánica) ----
+  const PRODUCTOS_ALTA = [
+    {id:"entrada",nombre:"Entrada de cine",emoji:"🎟️",precio:50,tienda:"Cine"},
+    {id:"pochoclos",nombre:"Pochoclos",emoji:"🍿",precio:30,tienda:"Cine"},
+    {id:"nachos",nombre:"Nachos",emoji:"🧀",precio:35,tienda:"Cine"},
+    {id:"gaseosacine",nombre:"Gaseosa grande",emoji:"🥤",precio:25,tienda:"Cine"},
+    {id:"ficha",nombre:"Fichas de juegos",emoji:"🕹️",precio:20,tienda:"Arcade"},
+    {id:"algodon",nombre:"Algodón de azúcar",emoji:"🍭",precio:15,tienda:"Arcade"},
+    {id:"premioarcade",nombre:"Premio gigante",emoji:"🏆",precio:90,tienda:"Arcade"},
+    {id:"dardos",nombre:"Tiro al blanco",emoji:"🎯",precio:25,tienda:"Arcade"},
+    {id:"tv",nombre:"Tele",emoji:"📺",precio:600,tienda:"Electro"},
+    {id:"consola",nombre:"Consola",emoji:"🎮",precio:550,tienda:"Electro"},
+    {id:"parlante",nombre:"Parlante",emoji:"🔊",precio:180,tienda:"Electro"},
+    {id:"camara",nombre:"Cámara",emoji:"📷",precio:300,tienda:"Electro"},
+    {id:"cafe",nombre:"Café con leche",emoji:"☕",precio:25,tienda:"Café"},
+    {id:"medialuna",nombre:"Medialunas",emoji:"🥐",precio:18,tienda:"Café"},
+    {id:"jugo",nombre:"Jugo natural",emoji:"🧃",precio:20,tienda:"Café"},
+    {id:"tostado",nombre:"Tostado",emoji:"🥪",precio:35,tienda:"Café"},
+    {id:"silla",nombre:"Silla",emoji:"🪑",precio:90,tienda:"Hogar"},
+    {id:"lampara",nombre:"Lámpara",emoji:"💡",precio:70,tienda:"Hogar"},
+    {id:"maceta",nombre:"Planta deco",emoji:"🪴",precio:40,tienda:"Hogar"},
+    {id:"cuadro",nombre:"Cuadro",emoji:"🖼️",precio:120,tienda:"Hogar"},
+    {id:"globo",nombre:"Globo",emoji:"🎈",precio:15,tienda:"Regalos"},
+    {id:"regalo",nombre:"Regalo sorpresa",emoji:"🎁",precio:60,tienda:"Regalos"},
+    {id:"flores",nombre:"Flores",emoji:"💐",precio:50,tienda:"Regalos"},
+    {id:"tarjeta",nombre:"Tarjeta",emoji:"💌",precio:10,tienda:"Regalos"},
+  ];
+  // las dos plantas comparten el catálogo de productos
+  PRODUCTOS.push(...PRODUCTOS_ALTA);
+  const TIENDAS_ALTA = [
+    {t:"Café",    emoji:"☕", color:"#d8a25a", x:380},
+    {t:"Cine",    emoji:"🎬", color:"#8a7bff", x:720},
+    {t:"Arcade",  emoji:"🕹️", color:"#ff6fae", x:1060},
+    {t:"Electro", emoji:"📺", color:"#4aa3ff", x:1400},
+    {t:"Hogar",   emoji:"🛋️", color:"#5fce97", x:1740},
+    {t:"Regalos", emoji:"🎁", color:"#ff8a5b", x:2080},
+  ];
+  const ALTA_W = 2500;
+  const ALTA_BAJAR_X = 2320;   // escalera para bajar
+
   /* =====================================================================
      ESTADO
      ===================================================================== */
@@ -587,7 +677,7 @@
     carrito:{}, tiendaActiva:null,
     cajeroPaso:"acercarse", pinEscrito:"", intentos:CONFIG.intentosClave, tarjetaDentro:false,
     monedasJuntadas:[],
-    mallX:230, cam:0, _mt:null,
+    mallX:230, cam:0, _mt:null, mundoW:MALL_W, piso:"baja",
     pago:null,                 // datos del desafío de vuelto en curso
     mascotas:[], vetSel:0,     // mascotas adoptadas y la seleccionada en la vet
     vetOcupada:false,          // bloquea botones mientras corre una animación
@@ -698,6 +788,23 @@
       <div class="wheel f"></div><div class="wheel b"></div>
     </div>`;
   }
+  function busHTML(){
+    let wins=""; for(let i=0;i<4;i++) wins+=`<div class="bus-win" style="left:${14+i*34}px"></div>`;
+    return `<div class="bus"><div class="bus-body"></div><div class="bus-stripe"></div>${wins}
+      <div class="bus-door"></div><div class="wheel f"></div><div class="wheel b"></div>
+      <div class="bus-label">🚌 al Parque</div></div>`;
+  }
+  // transición animada de viaje en ómnibus
+  function viajeEnBus(texto, cb){
+    const v=document.createElement("div"); v.className="viaje";
+    let paisaje=""; const em=["🌳","🏠","🌲","🏢","🌳","⛪","🌲"];
+    em.forEach((e,i)=>paisaje+=`<div class="paisaje" style="animation-delay:${i*0.32}s">${e}</div>`);
+    v.innerHTML=`<div class="vtxt">${texto}</div>${paisaje}<div class="ruta"></div>
+      <div class="busbig">${busHTML()}</div>`;
+    document.body.appendChild(v);
+    sMoneda();
+    setTimeout(()=>{ v.remove(); cb&&cb(); }, 1600);
+  }
 
   /* ---------- HUD ---------- */
   function hud(){ return `
@@ -717,6 +824,8 @@
     else if(s==="ciudad") renderCiudad();
     else if(s==="cajero") renderCajero();
     else if(s==="mall") renderMall();
+    else if(s==="mallAlta") renderMallAlta();
+    else if(s==="parque") renderParque();
     else if(s==="tienda") renderTienda();
     else if(s==="vuelto") renderVuelto();
     else if(s==="vet") renderVet();
@@ -827,10 +936,17 @@
         ${monHtml}
         ${npcHtml}
 
+        <div class="parada" data-bus style="left:6%">
+          <div class="toque">¡Al parque! 👆</div>
+          <div class="señal">🚌 Parada · Parque 🌳</div>
+          <div class="poste"></div>
+        </div>
+
         <div class="vereda"></div>
         <div class="calle"></div>
         <div class="auto-cap" style="bottom:7%;animation-duration:8s">${carHTML("#e8453c",1.25)}</div>
-        <div class="auto-cap" style="bottom:11%;animation-duration:12s;animation-delay:-5s">${carHTML("#2a6df4",1.1)}</div>
+        <div class="auto-cap" style="bottom:11%;animation-duration:14s;animation-delay:-3s">${busHTML()}</div>
+        <div class="auto-cap" style="bottom:7%;animation-duration:11s;animation-delay:-6s">${carHTML("#2a6df4",1.1)}</div>
 
         ${petCityHtml}
         <div class="avatar" id="avatar" style="left:${estado.avatarX}%">
@@ -876,6 +992,9 @@
       e.onclick=()=>{ const dest=parseFloat(e.dataset.x); beep(500,.08);
         caminarA(dest, ()=>{ sOk(); irA(e.dataset.entrar==="cajero"?"cajero":"mall"); }); };
     });
+    const parada=$app().querySelector("[data-bus]");
+    if(parada) parada.onclick=()=>{ beep(520,.08);
+      caminarA(6, ()=>{ viajeEnBus("🚌 ¡Vamos al parque!", ()=>irA("parque")); }); };
     $app().querySelectorAll("[data-moneda]").forEach(m=>{
       m.onclick=()=>{ const id=m.dataset.moneda, dx=parseFloat(m.dataset.x);
         caminarA(dx, ()=>{ sMoneda(); estado.monedasJuntadas.push(id);
@@ -901,6 +1020,124 @@
       if(chips[2])chips[2].textContent=estado.monedas;
       guardar();
     }
+  }
+
+  /* =====================================================================
+     PARQUE (se llega en ómnibus; se camina como en la ciudad)
+     ===================================================================== */
+  const NPC_PARQUE = [
+    {x:22,a:2,txt:["¡Qué lindo día! ☀️","¿Jugamos? 🎈"]},
+    {x:58,a:6,txt:["¡Mirá el lago! 🦆","Me encanta el parque 🌳"]},
+    {x:80,a:9,txt:["¡Cuidado con la pelota! ⚽","¡Hola! 👋"]},
+  ];
+  const MONEDAS_PARQUE = [ {id:"p1",x:38}, {id:"p2",x:70} ];
+
+  function renderParque(){
+    const monHtml = MONEDAS_PARQUE.filter(m=>!estado.monedasJuntadas.includes(m.id))
+      .map(m=>`<div class="moneda" data-moneda="${m.id}" data-x="${m.x}" style="left:${m.x}%;bottom:30%">${coinHTML(30)}</div>`).join("");
+    const npcHtml = NPC_PARQUE.map((n,i)=>
+      `<div class="npc" data-saluda="${i}" style="left:${n.x}%;bottom:30%">${personHTML(AVATARES[n.a],0.78)}</div>`).join("");
+    const pet0 = estado.mascotas[0];
+    const petHtml = pet0 ? `<div class="mascota-ciudad" id="petCity" style="left:${clamp(estado.avatarX-6,3,97)}%;bottom:28%">
+        ${pet0.accesorio?`<div class="pet-acc-city">${accEmoji(pet0.accesorio)}</div>`:""}${pet0.emoji}</div>` : "";
+
+    $app().innerHTML = `
+      <div class="parque">
+        <div class="sol">☀️</div>
+        <div class="nube" style="top:10%;animation-duration:42s">☁️</div>
+        <div class="nube" style="top:20%;animation-duration:60s;animation-delay:-25s">☁️</div>
+        ${hud()}
+        <button class="sonido-btn" id="snd">${CONFIG.sonido?"🔊":"🔇"}</button>
+        ${botonMision("left:8px;top:56px")}
+
+        <!-- fondo -->
+        <div class="pdeco fija" style="left:14%;bottom:40%;font-size:64px">🌳</div>
+        <div class="pdeco fija" style="left:30%;bottom:42%;font-size:54px">🌳</div>
+        <div class="pdeco fija" style="left:88%;bottom:41%;font-size:60px">🌳</div>
+        <div class="pdeco fija" style="left:50%;bottom:43%;font-size:46px">⛲</div>
+        <div class="pdeco fija" style="left:6%;bottom:30%;font-size:30px">🌷</div>
+        <div class="pdeco fija" style="left:64%;bottom:30%;font-size:30px">🌻</div>
+
+        <!-- juegos del parque -->
+        <div class="pdeco" data-juego="tobogan" style="left:78%;bottom:30%;font-size:48px">🛝</div>
+        <div class="pdeco" data-juego="hamaca" style="left:24%;bottom:30%;font-size:44px">🤸</div>
+        <div class="pdeco fija" style="left:42%;bottom:30%;font-size:34px">🪁</div>
+
+        <!-- lago con patos -->
+        <div class="estanque" style="left:58%"></div>
+        <div class="pdeco fija" style="left:54%;bottom:20%;font-size:26px">🦆</div>
+        <div class="pdeco fija" style="left:62%;bottom:19%;font-size:24px">🦢</div>
+
+        <!-- banco y picnic -->
+        <div class="pdeco fija" style="left:34%;bottom:29%;font-size:30px">🪑</div>
+        <div class="pdeco fija" style="left:70%;bottom:22%;font-size:30px">🧺</div>
+
+        ${monHtml}
+        ${npcHtml}
+
+        <!-- parada para volver -->
+        <div class="parada" data-volverciudad style="left:8%;bottom:30%">
+          <div class="toque">¡A la ciudad! 👆</div>
+          <div class="señal">🚌 Parada · Ciudad 🏙️</div>
+          <div class="poste"></div>
+        </div>
+        <div class="pdeco fija" style="left:92%;bottom:18%;font-size:30px">🐕</div>
+
+        <div class="pasto"></div>
+        <div class="camino"></div>
+
+        ${petHtml}
+        <div class="avatar" id="avatar" style="left:${estado.avatarX}%;bottom:30%">
+          ${personHTML(avAct(),1,"","cityperson")}
+        </div>
+        <div class="pista-piso">Tocá para caminar 🌳 · jugá en los juegos · volvé en 🚌 a la ciudad</div>
+      </div>`;
+
+    document.getElementById("snd").onclick=()=>{CONFIG.sonido=!CONFIG.sonido;
+      document.getElementById("snd").textContent=CONFIG.sonido?"🔊":"🔇";if(CONFIG.sonido)beep(700,.1);};
+    const mb=document.getElementById("misionBtn");
+    if(mb) mb.onclick=()=>{ beep(600,.08); abrirMision(); };
+
+    const av=document.getElementById("avatar");
+    const per=document.getElementById("cityperson");
+    const petCity=document.getElementById("petCity");
+
+    function caminarA(x, cb){
+      x=clamp(x,5,95);
+      const movingLeft=x<estado.avatarX;
+      const dur=Math.max(.35, Math.abs(x-estado.avatarX)/22);
+      per.classList.toggle("izq", movingLeft); per.classList.add("walk");
+      av.style.transition=`left ${dur}s linear`;
+      if(petCity){ const px=clamp(x+(movingLeft?7:-7),3,97);
+        petCity.classList.add("anda"); petCity.style.transition=`left ${dur}s linear`; petCity.style.transitionDelay=".1s";
+        requestAnimationFrame(()=>{ petCity.style.left=px+"%"; }); }
+      let n=Math.round(dur/0.18), c=0; const tic=setInterval(()=>{sPaso();if(++c>=n)clearInterval(tic);},180);
+      requestAnimationFrame(()=>{ av.style.left=x+"%"; });
+      estado.avatarX=x;
+      setTimeout(()=>{ per.classList.remove("walk"); if(petCity)petCity.classList.remove("anda"); clearInterval(tic); if(cb)cb(); }, dur*1000+20);
+    }
+    function burbuja(txt){ const old=av.querySelector(".burbuja"); if(old)old.remove();
+      const b=document.createElement("div"); b.className="burbuja"; b.textContent=txt; av.appendChild(b); setTimeout(()=>b.remove(),1400); }
+
+    $app().querySelectorAll("[data-moneda]").forEach(m=>{
+      m.onclick=()=>{ const id=m.dataset.moneda, dx=parseFloat(m.dataset.x);
+        caminarA(dx, ()=>{ estado.monedasJuntadas.push(id); ganarMonedas(1); m.remove();
+          const chips=$app().querySelectorAll(".hud .mo"); if(chips[1])chips[1].textContent=plata(estado.efectivo);
+          if(chips[2])chips[2].textContent=coinHTML(16)+" "+estado.monedas; burbuja(`+ ${plata(CONFIG.valorMoneda)} 🪙`); guardar(); }); };
+    });
+    $app().querySelectorAll("[data-saluda]").forEach(n=>{
+      n.onclick=()=>{ beep(700,.08); const npc=NPC_PARQUE[parseInt(n.dataset.saluda,10)];
+        const p=n.querySelector(".person"); if(p){p.style.transition="transform .2s";p.style.transform="translateY(-10px)";setTimeout(()=>p.style.transform="",220);}
+        const b=document.createElement("div"); b.className="burbuja"; b.textContent=npc.txt[Math.floor(Math.random()*npc.txt.length)];
+        n.appendChild(b); setTimeout(()=>b.remove(),1400); };
+    });
+    $app().querySelectorAll("[data-juego]").forEach(j=>{
+      j.onclick=()=>{ const jx=parseFloat(getComputedStyle(j).left)/window.innerWidth*100;
+        caminarA(clamp(jx,5,95), ()=>{ sFiesta(); j.style.transition="transform .25s"; j.style.transform="translateX(-50%) scale(1.25)";
+          setTimeout(()=>j.style.transform="translateX(-50%)",260); burbuja("¡Qué divertido! 🎉"); }); };
+    });
+    const pv=$app().querySelector("[data-volverciudad]");
+    if(pv) pv.onclick=()=>{ beep(520,.08); caminarA(8, ()=>viajeEnBus("🚌 ¡Volvemos a la ciudad!", ()=>irA("ciudad"))); };
   }
 
   /* =====================================================================
@@ -1052,6 +1289,7 @@
   }
 
   function renderMall(){
+    estado.mundoW=MALL_W; estado.piso="baja";
     estado.mallX = clamp(estado.mallX, 150, MALL_W-150);
 
     // techo + luces
@@ -1078,8 +1316,8 @@
     let pasos="";
     for(let i=0;i<6;i++) pasos+=`<div class="paso" style="bottom:${8+i*4}px;left:${14+i*12}px;animation-delay:${i*0.26}s"></div>`;
     const escalera = `
-      <div class="m-cartel" style="left:${ESCALERA_X}px;top:30%">⬆️ Piso 2 · Tecnología y más</div>
-      <div class="escalera" style="left:${ESCALERA_X}px"><div class="rampa"></div>${pasos}<div class="baranda"></div></div>`;
+      <div class="m-cartel m-subir" data-subir="1" style="left:${ESCALERA_X}px;top:28%;cursor:pointer">⬆️ Subir al Piso 2 🎬🕹️</div>
+      <div class="escalera" data-subir="1" style="left:${ESCALERA_X}px;cursor:pointer"><div class="rampa"></div>${pasos}<div class="baranda"></div></div>`;
 
     // plantas / bancos / decoraciones
     const props = `
@@ -1157,19 +1395,109 @@
           if(def&&def.vet){ irA("vet"); }
           else { estado.tiendaActiva=t; estado.carrito={}; irA("tienda"); } }); };
     });
+    $app().querySelectorAll("[data-subir]").forEach(el=>{
+      el.onclick=(e)=>{ e.stopPropagation(); beep(560,.08);
+        caminarMallA(ESCALERA_X, ()=>{ sOk(); estado.mallX=220; irA("mallAlta"); }); };
+    });
+    document.getElementById("izqB").onclick=()=>caminarMallA(estado.mallX-260);
+    document.getElementById("derB").onclick=()=>caminarMallA(estado.mallX+260);
+  }
+
+  /* =====================================================================
+     PLANTA ALTA del shopping (mismo motor de cámara, contenido distinto)
+     ===================================================================== */
+  const NPC_ALTA = [
+    {x:520,a:3,pose:"wander"},{x:900,a:6,pose:"stand"},{x:1250,a:1,pose:"wander"},
+    {x:1600,a:8,pose:"stand"},{x:1950,a:2,pose:"wander"},{x:2250,a:5,pose:"sit"},
+  ];
+  function renderMallAlta(){
+    estado.mundoW=ALTA_W; estado.piso="alta";
+    estado.mallX=clamp(estado.mallX,150,ALTA_W-150);
+
+    let luces=""; for(let x=80;x<ALTA_W;x+=200) luces+=`<div class="luz" style="left:${x}px"></div>`;
+    const locales = TIENDAS_ALTA.map(s=>`
+      <div class="local" data-tienda="${s.t}" data-x="${s.x}" style="left:${s.x}px;--lc:${s.color}">
+        <div class="entrar">Entrar ▶</div>
+        <div class="rotulo">${s.emoji} ${s.t}</div>
+        <div class="toldo"></div>
+        <div class="vidriera">${vidrieraItems(s.t)}<div class="puerta-l"></div></div>
+      </div>`).join("");
+    // zona de cine + mirador + plantas
+    const deco = `
+      <div class="m-cartel" style="left:720px;top:20%">🎬 Multicine</div>
+      <div class="m-cartel" style="left:1060px;top:20%">🎮 Zona de Juegos</div>
+      <div class="m-prop" style="left:560px">🪴</div>
+      <div class="m-prop" style="left:1240px;font-size:30px">🛋️</div>
+      <div class="m-prop" style="left:1560px">🪴</div>
+      <div class="m-prop" style="left:1900px;font-size:30px">🚮</div>
+      <div class="m-prop" style="left:2180px">🪴</div>
+      <div class="m-mesa" style="left:300px"><div class="tabla">☕🥐</div><div style="font-size:30px">🪑</div></div>
+      <div class="m-mesa" style="left:430px"><div class="tabla">🧃</div><div style="font-size:30px">🪑</div></div>`;
+    let pasos=""; for(let i=0;i<6;i++) pasos+=`<div class="paso" style="bottom:${8+i*4}px;left:${14+i*12}px;animation-delay:${i*0.26}s"></div>`;
+    const bajar = `
+      <div class="m-cartel m-subir" data-bajar="1" style="left:${ALTA_BAJAR_X}px;top:28%;cursor:pointer">⬇️ Bajar al Piso 1</div>
+      <div class="escalera baja" data-bajar="1" style="left:${ALTA_BAJAR_X}px;cursor:pointer"><div class="rampa"></div>${pasos}<div class="baranda"></div></div>`;
+    const npcs = NPC_ALTA.map((n,i)=>{
+      const cls = n.pose==="sit" ? "sit" : (n.pose==="wander" ? "walk" : "");
+      const wrapCls = n.pose==="wander" ? "wander" : "";
+      return `<div class="m-npc ${wrapCls}" style="left:${n.x}px">${personHTML(AVATARES[n.a],0.82,`${cls} ${i%2?"izq":""}`)}</div>`;
+    }).join("");
+
+    const cam0 = clamp(estado.mallX - window.innerWidth/2, 0, Math.max(0,ALTA_W-window.innerWidth));
+    estado.cam=cam0;
+
+    $app().innerHTML = `
+      <div class="mall-scene alta">
+        <div class="mall-world" id="mworld" style="width:${ALTA_W}px;transform:translateX(${-cam0}px)">
+          <div class="m-techo">${luces}</div>
+          <div class="m-pared"></div>
+          <div class="m-piso piso-alta"></div>
+          <div class="m-tap" id="mtap"></div>
+          ${deco}
+          ${bajar}
+          ${locales}
+          ${npcs}
+          <div class="m-avatar" id="mavatar" style="left:${estado.mallX}px">
+            ${personHTML(avAct(),0.95,"","mallperson")}
+          </div>
+        </div>
+        ${hud()}
+        <button class="sonido-btn" id="snd">${CONFIG.sonido?"🔊":"🔇"}</button>
+        ${botonMision("right:8px;top:58px")}
+        <button class="volver" id="volver" style="position:absolute;top:8px;left:8px;z-index:35;border:none;
+          background:#fff;border-radius:12px;padding:9px 13px;font-size:18px;font-weight:800;
+          box-shadow:0 4px 0 rgba(0,0,0,.1);cursor:pointer">⬅️</button>
+        <div class="mall-flechas"><button id="izqB">◀️</button><button id="derB">▶️</button></div>
+        <div class="mall-ayuda">🛍️ Planta Alta · tocá ⬇️ para bajar</div>
+      </div>`;
+
+    document.getElementById("snd").onclick=()=>{CONFIG.sonido=!CONFIG.sonido;
+      document.getElementById("snd").textContent=CONFIG.sonido?"🔊":"🔇";if(CONFIG.sonido)beep(700,.1);};
+    document.getElementById("volver").onclick=()=>{beep(400,.08);estado.mallX=ESCALERA_X;irA("mall");};
+    const mbA=document.getElementById("misionBtn"); if(mbA) mbA.onclick=()=>{beep(600,.08);abrirMision();};
+    document.getElementById("mtap").onclick=(e)=>{ caminarMallA(e.clientX+estado.cam); };
+    $app().querySelectorAll("[data-tienda]").forEach(el=>{
+      el.onclick=(e)=>{ e.stopPropagation(); const t=el.dataset.tienda, x=parseFloat(el.dataset.x);
+        beep(520,.08); caminarMallA(x, ()=>{ sOk(); estado.tiendaActiva=t; estado.carrito={}; irA("tienda"); }); };
+    });
+    $app().querySelectorAll("[data-bajar]").forEach(el=>{
+      el.onclick=(e)=>{ e.stopPropagation(); beep(440,.08);
+        caminarMallA(ALTA_BAJAR_X, ()=>{ sOk(); estado.mallX=ESCALERA_X; irA("mall"); }); };
+    });
     document.getElementById("izqB").onclick=()=>caminarMallA(estado.mallX-260);
     document.getElementById("derB").onclick=()=>caminarMallA(estado.mallX+260);
   }
 
   function camara(){
-    const sw=window.innerWidth;
-    let cam = clamp(estado.mallX - sw/2, 0, Math.max(0,MALL_W-sw));
+    const sw=window.innerWidth, W=estado.mundoW||MALL_W;
+    let cam = clamp(estado.mallX - sw/2, 0, Math.max(0,W-sw));
     estado.cam=cam;
     const world=document.getElementById("mworld");
     if(world) world.style.transform=`translateX(${-cam}px)`;
   }
   function caminarMallA(x, cb){
-    x=clamp(x,120,MALL_W-120);
+    const W=estado.mundoW||MALL_W;
+    x=clamp(x,120,W-120);
     const dist=Math.abs(x-estado.mallX);
     const av=document.getElementById("mavatar");
     const per=document.getElementById("mallperson");
@@ -1195,9 +1523,11 @@
   function totalCarrito(){ return Object.entries(estado.carrito).reduce((t,[id,c])=>{
     const p=PRODUCTOS.find(x=>x.id===id); return t+(p?p.precio*c:0);},0); }
 
+  const tiendaInfo = t => TIENDAS_MALL.find(s=>s.t===t) || TIENDAS_ALTA.find(s=>s.t===t) || {emoji:"🛍️"};
+  const volverAlMall = () => estado.piso==="alta" ? "mallAlta" : "mall";
   function renderTienda(){
     const t=estado.tiendaActiva;
-    const info=TIENDAS_MALL.find(s=>s.t===t)||{emoji:"🛍️"};
+    const info=tiendaInfo(t);
     const items=PRODUCTOS.filter(p=>p.tienda===t).map(p=>{
       const c=estado.carrito[p.id]||0, no=totalCarrito()+p.precio>estado.efectivo&&c===0;
       return `<div class="producto ${no?"no-alcanza":""}" data-p="${p.id}">
@@ -1216,7 +1546,7 @@
         ${cant>0?`<div class="carrito-barra" id="pagar"><span>🛒 ${cant} cosa(s)</span><span>Pagar ${plata(tot)} ✅</span></div>`:""}
       </div>`;
 
-    document.getElementById("volver").onclick=()=>{beep(400,.08);irA("mall");};
+    document.getElementById("volver").onclick=()=>{beep(400,.08);irA(volverAlMall());};
     $app().querySelectorAll("[data-p]").forEach(el=>el.onclick=()=>agregar(el.dataset.p));
     const pg=document.getElementById("pagar"); if(pg)pg.onclick=irACheckout;
   }
@@ -1366,7 +1696,7 @@
     const avet=document.getElementById("avet");
     if(avet) avet.onclick=()=>{beep(500,.08);estado.vetSel=estado.mascotas.length-1;irA("vet");};
     document.getElementById("seguir").onclick=()=>{beep(500,.08);estado.tiendaActiva=tienda;irA("tienda");};
-    document.getElementById("almall").onclick=()=>{beep(500,.08);irA("mall");};
+    document.getElementById("almall").onclick=()=>{beep(500,.08);irA(volverAlMall());};
     document.getElementById("ciudad").onclick=()=>{beep(500,.08);irA("ciudad");};
   }
 
